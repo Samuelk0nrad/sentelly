@@ -84,9 +84,6 @@ async function getDefinitionFromGemini(word: string) {
   }
 }
 
-export const revalidate = false; // Disable automatic revalidation
-export const dynamic = 'force-static'; // Force static generation
-
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const word = searchParams.get("word");
@@ -94,32 +91,18 @@ export async function GET(request: Request) {
   if (!word) {
     return Response.json(
       { error: "Word parameter is required" },
-      { 
-        status: 400,
-        headers: {
-          'Cache-Control': 'public, s-maxage=31536000, stale-while-revalidate=31536000'
-        }
-      }
+      { status: 400 }
     );
   }
 
   try {
     const definition = await getDefinitionFromGemini(word);
-    return Response.json(definition, {
-      headers: {
-        'Cache-Control': 'public, s-maxage=31536000, stale-while-revalidate=31536000'
-      }
-    });
+    return Response.json(definition);
   } catch (error) {
     console.error("API error:", error);
     return Response.json(
       { error: "Failed to get definition" },
-      { 
-        status: 500,
-        headers: {
-          'Cache-Control': 'public, s-maxage=31536000, stale-while-revalidate=31536000'
-        }
-      }
+      { status: 500 }
     );
   }
 }
