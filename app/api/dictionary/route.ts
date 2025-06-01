@@ -17,7 +17,7 @@ Please provide responses in the following JSON format:
 
 async function getDefinitionFromGemini(word: string): Promise<DictionaryResponse> {
   const model = genAI.getGenerativeModel({ 
-    model: "gemini-pro",
+    model: "gemini-2.0-flash",
     generationConfig: {
       temperature: 0.1,
       topP: 0.1,
