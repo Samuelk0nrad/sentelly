@@ -1,5 +1,9 @@
 import { GoogleGenAI, Type } from "@google/genai";
 
+// Simple in-memory cache
+const cache = new Map<string, { data: any; timestamp: number }>();
+const CACHE_DURATION = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
+
 const SYSTEM_PROMPT = `You are a dictionary API that provides detailed word definitions.
 CRITICAL: You must ONLY return a valid JSON object with no additional text, markdown, or formatting.
 The response must be a single JSON object in this exact format:
@@ -29,6 +33,13 @@ For example, for the word "developer":
 const ai = new GoogleGenAI({ apiKey: process.env.GOOGLE_API_KEY! });
 
 async function getDefinitionFromGemini(word: string) {
+  // Check cache first
+  const cached = cache.get(word);
+  if (cached && Date.now() - cached.timestamp < CACHE_DURATION) {
+    console.log(`Cache hit for word: ${word}`);
+    return cached.data;
+  }
+
   try {
     const prompt = `${SYSTEM_PROMPT}\n\nDefine the word: ${word}`;
 
@@ -77,7 +88,13 @@ async function getDefinitionFromGemini(word: string) {
       },
     });
 
-    return JSON.parse(response.text || "{}");
+    const data = JSON.parse(response.text || "{}");
+    
+    // Store in cache
+    cache.set(word, { data, timestamp: Date.now() });
+    console.log(`Cached definition for word: ${word}`);
+    
+    return data;
   } catch (error) {
     console.error("Gemini API error:", error);
     throw error;
