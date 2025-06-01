@@ -29,7 +29,8 @@ export default function DictionarySearch() {
       setError(null);
       return;
     }
-
+    
+    setHasSearched(true);
     setLoading(true);
     setError(null);
 
