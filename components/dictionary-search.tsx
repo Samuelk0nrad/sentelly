@@ -21,7 +21,6 @@ export default function DictionarySearch() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [hasSearched, setHasSearched] = useState(false);
-  const [isTyping, setIsTyping] = useState(false);
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -33,7 +32,6 @@ export default function DictionarySearch() {
 
     setLoading(true);
     setError(null);
-    setIsTyping(true);
 
     try {
       const response = await fetch(
@@ -44,7 +42,6 @@ export default function DictionarySearch() {
       }
       const data = await response.json();
       setResult(data);
-      setIsTyping(false);
     } catch (err) {
       setError(
         err instanceof Error ? err.message : "An unexpected error occurred",
@@ -72,7 +69,6 @@ export default function DictionarySearch() {
             value={searchTerm}
             onChange={(e) => {
               setSearchTerm(e.target.value);
-              setIsTyping(true);
             }}
             autoFocus
           />
@@ -91,7 +87,7 @@ export default function DictionarySearch() {
       <div
         className={`transition-all duration-700 ${hasSearched ? "w-1/2 opacity-100" : "w-0 opacity-0"}`}
       >
-        <DictionaryResult result={result} loading={loading || isTyping} error={error} />
+        <DictionaryResult result={result} loading={loading} error={error} />
       </div>
     </div>
   );
