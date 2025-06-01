@@ -73,7 +73,8 @@ export default function DictionarySearch() {
           <Button
             type="submit"
             size="icon"
-            className="absolute top-2 right-2 h-10 w-10 rounded-xl border border-white/25 bg-gradient-to-r from-white/10 to-white/5 shadow-none transition-all hover:border-white/35 hover:from-white/20 hover:to-white/10 hover:shadow-[0_4px_16px_rgba(255,255,255,0.15),inset_0_1px_0_rgba(255,255,255,0.25)]"
+className="absolute top-2 right-2 h-10 w-10 rounded-xl border border-white/25 bg-[#f8d7a8] shadow-none transition-all hover:border-white/35 hover:bg-[#fbe3c2] hover:shadow-[0_4px_16px_rgba(255,255,255,0.15),inset_0_1px_0_rgba(255,255,255,0.25)]"
+
             disabled={loading}
           >
             <SearchIcon className="h-5 w-5 text-white/80 transition-all group-hover:text-white" />
