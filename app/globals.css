@@ -68,6 +68,14 @@
   }
 }
 
+/*
+  The default border color has changed to `currentcolor` in Tailwind CSS v4,
+  so we've added these compatibility styles to make sure everything still
+  looks the same as it did with Tailwind CSS v3.
+
+  If we ever want to remove these styles, we need to add an explicit border
+  color utility to any element that depends on these defaults.
+*/
 @layer base {
   *,
   ::after,
@@ -83,20 +91,23 @@
 }
 
 @utility sparrow-gradient {
+  /* Base radial gradient */
   background: radial-gradient(
     circle at top,
     rgb(0, 0, 0, 0) 0%,
-    rgb(255, 178, 102, 0.8) 30%,
-    rgb(255, 159, 67, 1) 55%,
-    rgb(255, 178, 102, 0.8) 75%,
+    rgb(245, 152, 144, 0.8) 30%,
+    rgb(255, 138, 128, 1) 55%,
+    rgb(255, 155, 145, 0.8) 75%,
     rgb(0, 0, 0, 0) 100%
   );
-  position: relative;
-  isolation: isolate;
+
+  position: relative; /* For pseudo-element positioning */
+  isolation: isolate; /* Create new stacking context for pseudo-element */
 }
 
 @utility light-gradient {
-  background: radial-gradient(circle at top, #ffe0cc 0%, #fff 100%);
+  /* Base radial gradient */
+  background: radial-gradient(circle at top, #e3d9c8 0%, #fff 100%);
   position: relative;
   isolation: isolate;
 }
@@ -125,42 +136,41 @@
     --card-foreground: 0 0% 3.9%;
     --popover: 0 0% 100%;
     --popover-foreground: 0 0% 3.9%;
-    --primary: 32 100% 63%;
+    --primary: 221 83% 53%;
     --primary-foreground: 0 0% 98%;
-    --secondary: 32 100% 96%;
+    --secondary: 0 0% 96.1%;
     --secondary-foreground: 0 0% 9%;
-    --muted: 32 100% 96%;
+    --muted: 0 0% 96.1%;
     --muted-foreground: 0 0% 45.1%;
-    --accent: 32 100% 63%;
+    --accent: 262 83% 58%;
     --accent-foreground: 0 0% 98%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
-    --border: 32 100% 89.8%;
-    --input: 32 100% 89.8%;
-    --ring: 32 100% 63%;
+    --border: 0 0% 89.8%;
+    --input: 0 0% 89.8%;
+    --ring: 221 83% 53%;
     --radius: 0.75rem;
   }
-
   .dark {
-    --background: 32 47% 11%;
+    --background: 222 47% 11%;
     --foreground: 0 0% 98%;
-    --card: 32 47% 11%;
+    --card: 222 47% 11%;
     --card-foreground: 0 0% 98%;
-    --popover: 32 47% 11%;
+    --popover: 222 47% 11%;
     --popover-foreground: 0 0% 98%;
-    --primary: 32 91% 60%;
+    --primary: 217 91% 60%;
     --primary-foreground: 0 0% 98%;
-    --secondary: 32 19% 27%;
+    --secondary: 217 19% 27%;
     --secondary-foreground: 0 0% 98%;
-    --muted: 32 19% 27%;
+    --muted: 217 19% 27%;
     --muted-foreground: 0 0% 63.9%;
-    --accent: 32 83% 58%;
+    --accent: 262 83% 58%;
     --accent-foreground: 0 0% 98%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;
-    --border: 32 19% 27%;
-    --input: 32 19% 27%;
-    --ring: 32 76% 48%;
+    --border: 217 19% 27%;
+    --input: 217 19% 27%;
+    --ring: 224 76% 48%;
   }
 }
 
@@ -187,14 +197,17 @@
     right: 0;
     bottom: 0;
     background-image: 
+      /* Plus signs at every 4th intersection */
       url("data:image/svg+xml,%3Csvg width='120' height='120' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23000' fill-opacity='0.6'%3E%3Crect x='59.5' y='51' width='1' height='18' rx='0.5'/%3E%3Crect x='51' y='59.5' width='18' height='1' rx='0.5'/%3E%3C/g%3E%3C/svg%3E"),
-      linear-gradient(rgba(0, 0, 0, 0.15) 1px, transparent 1px),
+      /* Regular grid lines */
+        linear-gradient(rgba(0, 0, 0, 0.15) 1px, transparent 1px),
       linear-gradient(90deg, rgba(0, 0, 0, 0.15) 1px, transparent 1px);
     background-size:
       120px 120px,
       30px 30px,
       30px 30px;
     pointer-events: none;
+    /* Oval mask in the center with smooth transition */
     mask: radial-gradient(
       ellipse 70% 50% at center,
       black 0%,
@@ -211,8 +224,10 @@
 
   .dark .grid-background::after {
     background-image: 
+      /* Plus signs at every 4th intersection */
       url("data:image/svg+xml,%3Csvg width='120' height='120' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23fff' fill-opacity='0.4'%3E%3Crect x='59.5' y='51' width='1' height='18' rx='0.5'/%3E%3Crect x='51' y='59.5' width='18' height='1' rx='0.5'/%3E%3C/g%3E%3C/svg%3E"),
-      linear-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px),
+      /* Regular grid lines */
+        linear-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px),
       linear-gradient(90deg, rgba(255, 255, 255, 0.1) 1px, transparent 1px);
     background-size:
       120px 120px,
