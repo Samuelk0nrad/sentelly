@@ -4,8 +4,9 @@ import { DictionaryResponse } from "@/lib/types";
 // Initialize the Gemini API with safety settings
 const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY!);
 
-const SYSTEM_PROMPT = `You are a dictionary API that provides detailed word definitions. 
-Please provide responses in the following JSON format:
+const SYSTEM_PROMPT = `You are a dictionary API that provides detailed word definitions.
+CRITICAL: You must ONLY return a valid JSON object with no additional text, markdown, or formatting.
+The response must be a single JSON object in this exact format:
 {
   "word": "the word being defined",
   "phonetic": "phonetic pronunciation",
@@ -13,11 +14,12 @@ Please provide responses in the following JSON format:
   "examples": ["example sentences", "using the word"],
   "synonyms": ["list", "of", "synonyms"],
   "usage": "description of how the word is typically used"
-}`;
+}
+Do not include any explanations, notes, or additional text before or after the JSON.`;
 
 async function getDefinitionFromGemini(word: string): Promise<DictionaryResponse> {
   const model = genAI.getGenerativeModel({ 
-    model: "gemini-2.0-flash",
+    model: "gemini-pro",
     generationConfig: {
       temperature: 0.1,
       topP: 0.1,
@@ -25,19 +27,19 @@ async function getDefinitionFromGemini(word: string): Promise<DictionaryResponse
     },
     safetySettings: [
       {
-        category: HarmCategory.HARM_CATEGORY_HARASSMENT,
+        category: HarmCategory.HARASSMENT,
         threshold: HarmBlockThreshold.BLOCK_NONE,
       },
       {
-        category: HarmCategory.HARM_CATEGORY_HATE_SPEECH,
+        category: HarmCategory.HATE_SPEECH,
         threshold: HarmBlockThreshold.BLOCK_NONE,
       },
       {
-        category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT,
+        category: HarmCategory.SEXUALLY_EXPLICIT,
         threshold: HarmBlockThreshold.BLOCK_NONE,
       },
       {
-        category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
+        category: HarmCategory.DANGEROUS_CONTENT,
         threshold: HarmBlockThreshold.BLOCK_NONE,
       },
     ],
@@ -48,10 +50,10 @@ async function getDefinitionFromGemini(word: string): Promise<DictionaryResponse
     
     const result = await model.generateContent(prompt);
     const response = await result.response;
-    const text = response.text();
+    const text = response.text().trim();
     
     try {
-      const parsed = JSON.parse(text.trim()) as DictionaryResponse;
+      const parsed = JSON.parse(text) as DictionaryResponse;
       
       // Validate the response structure
       if (!parsed.word || !parsed.definition) {
