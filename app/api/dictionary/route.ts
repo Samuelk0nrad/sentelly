@@ -14,15 +14,21 @@ Always respond with valid JSON that matches this structure exactly:
   "usage": string (optional)
 }
 
-The definition should be a single sentence that starts with the word and its phonetic (if available), followed by the definition.
+CRITICAL: The definition MUST follow this exact format:
+[word] ([phonetic]) [definition]
 
-Examples:
+For example:
+- "hello (/həˈloʊ/) is used as a greeting or to begin a conversation."
+- "serendipity (/ˌsɛrənˈdɪpɪti/) refers to the occurrence and development of events by chance in a happy or beneficial way."
+- "algorithm (/ˈælɡəˌrɪðəm/) is a process or set of rules to be followed in calculations or problem-solving operations."
+
+Complete examples:
 
 1. For the word "hello":
 {
   "word": "hello",
   "phonetic": "/həˈloʊ/",
-  "definition": "is used as a greeting or to begin a conversation.",
+  "definition": "hello (/həˈloʊ/) is used as a greeting or to begin a conversation.",
   "examples": ["Hello, how are you?", "She said hello to everyone in the room."],
   "synonyms": ["hi", "greetings", "salutations"],
   "usage": "Used in both formal and informal situations as a greeting"
@@ -32,7 +38,7 @@ Examples:
 {
   "word": "serendipity",
   "phonetic": "/ˌsɛrənˈdɪpɪti/",
-  "definition": "refers to the occurrence and development of events by chance in a happy or beneficial way.",
+  "definition": "serendipity (/ˌsɛrənˈdɪpɪti/) refers to the occurrence and development of events by chance in a happy or beneficial way.",
   "examples": ["Finding his dream job while on vacation was pure serendipity.", "The discovery of penicillin was a moment of serendipity."],
   "synonyms": ["chance", "fate", "providence", "luck"],
   "usage": "Often used to describe fortunate coincidences or pleasant surprises"
