@@ -3,7 +3,7 @@
 import { useRef, useState } from "react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { AlertCircle, Volume2, Loader2 } from "lucide-react";
+import { AlertCircle, Volume2 } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 
@@ -28,13 +28,11 @@ export default function DictionaryResult({
   error,
 }: DictionaryResultProps) {
   const [isPlaying, setIsPlaying] = useState(false);
-  const [isLoadingAudio, setIsLoadingAudio] = useState(false);
   const audioCache = useRef<Map<string, string>>(new Map());
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   const playAudio = async (word: string) => {
     try {
-      setIsLoadingAudio(true);
       setIsPlaying(true);
 
       // Check if we have the audio URL cached
@@ -56,7 +54,6 @@ export default function DictionaryResult({
       }
       
       audioRef.current.src = audioUrl;
-      setIsLoadingAudio(false);
       await audioRef.current.play();
       
       audioRef.current.onended = () => {
@@ -65,7 +62,6 @@ export default function DictionaryResult({
     } catch (error) {
       console.error("Error playing audio:", error);
       setIsPlaying(false);
-      setIsLoadingAudio(false);
     }
   };
 
@@ -126,13 +122,9 @@ export default function DictionaryResult({
                   size="icon"
                   className="ml-1 h-6 w-6 rounded-full border border-white/25 bg-white/10 p-1 hover:bg-white/20"
                   onClick={() => playAudio(result.word)}
-                  disabled={isPlaying || isLoadingAudio}
+                  disabled={isPlaying}
                 >
-                  {isLoadingAudio ? (
-                    <Loader2 className="h-3 w-3 animate-spin text-white/80" />
-                  ) : (
-                    <Volume2 className="h-3 w-3 text-white/80" />
-                  )}
+                  <Volume2 className="h-3 w-3 text-white/80" />
                   <span className="sr-only">Play pronunciation</span>
                 </Button>
               </span>
