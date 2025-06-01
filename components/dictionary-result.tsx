@@ -67,7 +67,7 @@ export default function DictionaryResult({
   }
 
   return (
-    <Card className="animate-fade-in w-full overflow-hidden rounded-2xl border-0 bg-gradient-to-br from-white/10 to-white/5 shadow-[inset_0_1px_1px_rgba(255,255,255,0.2)] backdrop-blur-lg">
+    <Card className="animate-fade-in w-full overflow-hidden rounded-2xl border-0 bg-gradient-to-br from-[rgb(255,155,145,0.15)] to-[rgb(245,152,144,0.05)] shadow-[inset_0_1px_1px_rgba(255,255,255,0.2)] backdrop-blur-[12px]">
       <CardHeader className="relative border-b border-white/10 bg-white/5 pb-6">
         <div className="relative z-10">
           <p className="font-mono text-lg text-white/90">
@@ -114,7 +114,7 @@ export default function DictionaryResult({
               {result.synonyms.map((synonym, index) => (
                 <span
                   key={index}
-                  className="rounded-full bg-gradient-to-r from-purple-500/30 to-purple-600/30 px-4 py-1.5 font-mono text-sm text-white/90 shadow-[inset_0_1px_1px_rgba(255,255,255,0.2)] backdrop-blur-md transition-all hover:from-purple-500/40 hover:to-purple-600/40 hover:shadow-[inset_0_1px_1px_rgba(255,255,255,0.3)]"
+                  className="rounded-full bg-gradient-to-r from-[rgb(255,155,145,0.2)] to-[rgb(245,152,144,0.3)] px-4 py-1.5 font-mono text-sm text-white/90 shadow-[inset_0_1px_1px_rgba(255,255,255,0.2)] backdrop-blur-md transition-all hover:from-[rgb(255,155,145,0.3)] hover:to-[rgb(245,152,144,0.4)] hover:shadow-[inset_0_1px_1px_rgba(255,255,255,0.3)]"
                 >
                   {synonym}
                 </span>
