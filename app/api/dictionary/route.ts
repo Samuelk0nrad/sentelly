@@ -51,6 +51,8 @@ async function getDefinitionFromGemini(word: string): Promise<DictionaryResponse
     const result = await model.generateContent(prompt);
     const response = await result.response;
     const text = response.text().trim();
+
+    console.log("gemini res:", text);
     
     try {
       const parsed = JSON.parse(text) as DictionaryResponse;
