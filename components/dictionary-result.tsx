@@ -1,9 +1,11 @@
 "use client";
 
+import { useRef, useState } from "react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { AlertCircle } from "lucide-react";
+import { AlertCircle, Volume2 } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
 
 interface DictionaryResponse {
   word: string;
@@ -25,6 +27,44 @@ export default function DictionaryResult({
   loading,
   error,
 }: DictionaryResultProps) {
+  const [isPlaying, setIsPlaying] = useState(false);
+  const audioCache = useRef<Map<string, string>>(new Map());
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  const playAudio = async (word: string) => {
+    try {
+      setIsPlaying(true);
+
+      // Check if we have the audio URL cached
+      let audioUrl = audioCache.current.get(word);
+
+      if (!audioUrl) {
+        // Fetch new audio if not cached
+        const response = await fetch(`/api/tts?text=${encodeURIComponent(word)}`);
+        if (!response.ok) throw new Error("Failed to fetch audio");
+
+        const audioBlob = await response.blob();
+        audioUrl = URL.createObjectURL(audioBlob);
+        audioCache.current.set(word, audioUrl);
+      }
+
+      // Create and play audio
+      if (!audioRef.current) {
+        audioRef.current = new Audio();
+      }
+      
+      audioRef.current.src = audioUrl;
+      await audioRef.current.play();
+      
+      audioRef.current.onended = () => {
+        setIsPlaying(false);
+      };
+    } catch (error) {
+      console.error("Error playing audio:", error);
+      setIsPlaying(false);
+    }
+  };
+
   if (loading) {
     return (
       <Card className="animate-fade-in w-full overflow-hidden rounded-2xl border-0 bg-white/5 backdrop-blur-lg">
@@ -65,6 +105,7 @@ export default function DictionaryResult({
   if (!result) {
     return null;
   }
+
   return (
     <Card className="animate-fade-in w-full overflow-hidden rounded-2xl border border-white/50 bg-gray-300/20 backdrop-blur-2xl">
       <CardHeader className="relative backdrop-blur-sm">
@@ -76,6 +117,16 @@ export default function DictionaryResult({
             {result.phonetic && (
               <span className="text-md ml-2 font-medium text-white/60">
                 ({result.phonetic})
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="ml-1 h-6 w-6 rounded-full border border-white/25 bg-white/10 p-1 hover:bg-white/20"
+                  onClick={() => playAudio(result.word)}
+                  disabled={isPlaying}
+                >
+                  <Volume2 className="h-3 w-3 text-white/80" />
+                  <span className="sr-only">Play pronunciation</span>
+                </Button>
               </span>
             )}{" "}
             {result.definition}
@@ -83,7 +134,6 @@ export default function DictionaryResult({
         </div>
       </CardHeader>
       <CardContent className="space-y-6 p-6">
-        {" "}
         {result.examples && result.examples.length > 0 && (
           <div className="space-y-3">
             <h3 className="text-md font-bold text-white/95">EXAMPLES:</h3>
