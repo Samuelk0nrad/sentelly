@@ -21,6 +21,7 @@ export default function DictionarySearch() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [hasSearched, setHasSearched] = useState(false);
+  const [isTyping, setIsTyping] = useState(false);
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -32,6 +33,7 @@ export default function DictionarySearch() {
 
     setLoading(true);
     setError(null);
+    setIsTyping(true);
 
     try {
       const response = await fetch(
@@ -42,6 +44,7 @@ export default function DictionarySearch() {
       }
       const data = await response.json();
       setResult(data);
+      setIsTyping(false);
     } catch (err) {
       setError(
         err instanceof Error ? err.message : "An unexpected error occurred",
@@ -67,18 +70,19 @@ export default function DictionarySearch() {
             placeholder="ENTER QUERY..."
             className="h-14 rounded-2xl border border-white/50 bg-gray-300/20 pr-14 pl-4 text-lg text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.1)] backdrop-blur-2xl transition-all placeholder:text-white/50 hover:border-white/60 focus:border-white/70 focus-visible:ring-0 focus-visible:ring-offset-0"
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            onChange={(e) => {
+              setSearchTerm(e.target.value);
+              setIsTyping(true);
+            }}
             autoFocus
           />
           <Button
             type="submit"
             size="icon"
             className="absolute top-2 right-2 h-10 w-10 rounded-xl border border-white/25 bg-[#f7a372] shadow-none transition-all hover:border-white/35 hover:bg-[#fdd3b8] hover:shadow-[0_4px_16px_rgba(255,255,255,0.15),inset_0_1px_0_rgba(255,255,255,0.25)]"
-
-
             disabled={loading}
           >
-            <SearchIcon className="h-5 w-5 text-white/80 transition-all group-hover:text-white" />
+            <SearchIcon className={`h-5 w-5 text-white/80 transition-all group-hover:text-white ${loading ? "animate-spin" : ""}`} />
             <span className="sr-only">Search</span>
           </Button>
         </div>
@@ -87,7 +91,7 @@ export default function DictionarySearch() {
       <div
         className={`transition-all duration-700 ${hasSearched ? "w-1/2 opacity-100" : "w-0 opacity-0"}`}
       >
-        <DictionaryResult result={result} loading={loading} error={error} />
+        <DictionaryResult result={result} loading={loading || isTyping} error={error} />
       </div>
     </div>
   );
