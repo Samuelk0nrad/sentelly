@@ -1,4 +1,8 @@
-import { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } from "@google/generative-ai";
+import {
+  GoogleGenerativeAI,
+  HarmCategory,
+  HarmBlockThreshold,
+} from "@google/generative-ai";
 import { DictionaryResponse } from "@/lib/types";
 
 // Initialize the Gemini API with safety settings
@@ -17,9 +21,11 @@ The response must be a single JSON object in this exact format:
 }
 Do not include any explanations, notes, or additional text before or after the JSON.`;
 
-async function getDefinitionFromGemini(word: string): Promise<DictionaryResponse> {
-  const model = genAI.getGenerativeModel({ 
-    model: "gemini-pro",
+async function getDefinitionFromGemini(
+  word: string,
+): Promise<DictionaryResponse> {
+  const model = genAI.getGenerativeModel({
+    model: "gemini-2.0-flash",
     generationConfig: {
       temperature: 0.1,
       topP: 0.1,
@@ -47,21 +53,21 @@ async function getDefinitionFromGemini(word: string): Promise<DictionaryResponse
 
   try {
     const prompt = `${SYSTEM_PROMPT}\n\nDefine the word: ${word}`;
-    
+
     const result = await model.generateContent(prompt);
     const response = await result.response;
     const text = response.text().trim();
 
     console.log("gemini res:", text);
-    
+
     try {
       const parsed = JSON.parse(text) as DictionaryResponse;
-      
+
       // Validate the response structure
       if (!parsed.word || !parsed.definition) {
         throw new Error("Invalid response structure");
       }
-      
+
       return parsed;
     } catch (parseError) {
       console.error("Failed to parse Gemini response:", text);
@@ -80,7 +86,7 @@ export async function GET(request: Request) {
   if (!word) {
     return Response.json(
       { error: "Word parameter is required" },
-      { status: 400 }
+      { status: 400 },
     );
   }
 
@@ -91,7 +97,7 @@ export async function GET(request: Request) {
     console.error("API error:", error);
     return Response.json(
       { error: "Failed to get definition" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
