@@ -1,12 +1,4 @@
-import {
-  GoogleGenerativeAI,
-  HarmCategory,
-  HarmBlockThreshold,
-} from "@google/generative-ai";
-import { DictionaryResponse } from "@/lib/types";
-
-// Initialize the Gemini API with safety settings
-const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY!);
+import { GoogleGenAI, Type } from "@google/genai";
 
 const SYSTEM_PROMPT = `You are a dictionary API that provides detailed word definitions.
 CRITICAL: You must ONLY return a valid JSON object with no additional text, markdown, or formatting.
@@ -14,77 +6,78 @@ The response must be a single JSON object in this exact format:
 {
   "word": "the word being defined",
   "phonetic": "phonetic pronunciation",
-  "definition": "a single sentence definition that starts with the word and its phonetic",
+  "definition": "a single sentence definition formulated so it starts with the word and its phonetic but do not include the word itself and the phonetic",
   "examples": ["example sentences", "using the word"],
   "synonyms": ["list", "of", "synonyms"],
   "usage": "description of how the word is typically used"
 }
-Do not include any explanations, notes, or additional text before or after the JSON.`;
+Do not include any explanations, notes, or additional text before or after the JSON.
 
-async function getDefinitionFromGemini(
-  word: string,
-): Promise<DictionaryResponse> {
+For example, for the word "developer":
+{
+  "word": "developer",
+  "phonetic": "/dɪˈvel.ə.pər/",
+  "definition": "is a person or company that creates software or websites.",
+  "examples": [
+    "She works as a web developer for a tech startup.",
+    "The game developer released a new version of the app."
+  ],
+  "synonyms": ["programmer", "coder", "software engineer"],
+  "usage": "The term 'developer' is commonly used in the technology industry to refer to individuals or teams responsible for building and maintaining software applications and websites."
+}
+`;
+const ai = new GoogleGenAI({ apiKey: process.env.GOOGLE_API_KEY! });
 
+async function getDefinitionFromGemini(word: string) {
+  try {
+    const prompt = `${SYSTEM_PROMPT}\n\nDefine the word: ${word}`;
 
-  const response = await ai.models.generateContent({
-    model: "gemini-2.0-flash",
-    contents:
-      `${SYSTEM_PROMPT}\n\nDefine the word: ${word}`,
-    config: {
-      responseMimeType: "application/json",
-      responseSchema: {
-        type: Type.ARRAY,
-        items: {
+    const response = await ai.models.generateContent({
+      model: "gemini-2.0-flash",
+      contents: prompt,
+      config: {
+        responseMimeType: "application/json",
+        responseSchema: {
           type: Type.OBJECT,
           properties: {
-            recipeName: {
+            word: {
               type: Type.STRING,
             },
-            ingredients: {
+            phonetic: {
+              type: Type.STRING,
+            },
+            definition: {
+              type: Type.STRING,
+            },
+            examples: {
               type: Type.ARRAY,
               items: {
                 type: Type.STRING,
               },
             },
+            synonyms: {
+              type: Type.ARRAY,
+              items: {
+                type: Type.STRING,
+              },
+            },
+            usage: {
+              type: Type.STRING,
+            },
           },
-          propertyOrdering: ["recipeName", "ingredients"],
+          propertyOrdering: [
+            "word",
+            "phonetic",
+            "definition",
+            "examples",
+            "synonyms",
+            "usage",
+          ],
         },
       },
-    },
-  });
+    });
 
-  
-  const model = genAI.getGenerativeModel({
-    model: "gemini-2.0-flash",
-    generationConfig: {
-      temperature: 0.1,
-      topP: 0.1,
-      topK: 16,
-    }
-  });
-
-  try {
-    const prompt = `${SYSTEM_PROMPT}\n\nDefine the word: ${word}`;
-
-    const result = await model.generateContent(prompt);
-    const response = await result.response;
-    const text = response.text().trim();
-
-    console.log("gemini res:", text);
-
-    try {
-      const parsed = JSON.parse(text) as DictionaryResponse;
-
-      // Validate the response structure
-      if (!parsed.word || !parsed.definition) {
-        throw new Error("Invalid response structure");
-      }
-
-      return parsed;
-    } catch (parseError) {
-      console.error("Failed to parse Gemini response:", text);
-      throw new Error("Failed to parse Gemini response as JSON");
-    }
+    return JSON.parse(response.text || "{}");
   } catch (error) {
     console.error("Gemini API error:", error);
     throw error;
