@@ -62,11 +62,10 @@ export default function DictionarySearch() {
         className={`transition-all duration-700 ${hasSearched ? "w-1/2" : "mx-auto w-full max-w-2xl"}`}
       >
         <div className="group relative">
-          {" "}
           <Input
             type="text"
             placeholder="ENTER QUERY..."
-            className="h-14 rounded-xl border-2 border-gray-300 bg-white pr-14 pl-4 text-lg text-black shadow-sm transition-all placeholder:text-gray-500 hover:border-gray-400 focus:border-gray-600 focus-visible:ring-offset-2"
+            className="h-14 rounded-2xl border border-white/50 bg-gray-300/20 pr-14 pl-4 text-lg text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.1)] backdrop-blur-2xl transition-all placeholder:text-white/50 hover:border-white/60 focus:border-white/70 focus-visible:ring-0 focus-visible:ring-offset-0"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             autoFocus
@@ -74,10 +73,10 @@ export default function DictionarySearch() {
           <Button
             type="submit"
             size="icon"
-            className="absolute top-2 right-2 h-10 w-10 border-0 bg-transparent shadow-none transition-all hover:bg-gray-100/20"
+            className="absolute top-2 right-2 h-10 w-10 rounded-xl border border-white/25 bg-gradient-to-r from-white/10 to-white/5 shadow-none transition-all hover:border-white/35 hover:from-white/20 hover:to-white/10 hover:shadow-[0_4px_16px_rgba(255,255,255,0.15),inset_0_1px_0_rgba(255,255,255,0.25)]"
             disabled={loading}
           >
-            <SearchIcon className="h-5 w-5 text-gray-600 transition-all hover:text-gray-800" />
+            <SearchIcon className="h-5 w-5 text-white/80 transition-all group-hover:text-white" />
             <span className="sr-only">Search</span>
           </Button>
         </div>
