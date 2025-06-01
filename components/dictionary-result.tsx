@@ -65,17 +65,16 @@ export default function DictionaryResult({
   if (!result) {
     return null;
   }
-
   return (
-    <Card className="animate-fade-in w-full overflow-hidden rounded-2xl border-0 bg-gradient-to-br from-[rgb(255,155,145,0.15)] to-[rgb(245,152,144,0.05)] shadow-[inset_0_1px_1px_rgba(255,255,255,0.2)] backdrop-blur-[12px]">
-      <CardHeader className="relative border-b border-white/10 bg-white/5 pb-6">
+    <Card className="animate-fade-in w-full overflow-hidden rounded-2xl border border-white/50 bg-gray-300/20 backdrop-blur-2xl">
+      <CardHeader className="relative backdrop-blur-sm">
         <div className="relative z-10">
-          <p className="font-mono text-lg text-white/90">
-            <strong className="text-xl font-bold text-white md:text-2xl">
+          <p className="text-md font-mono text-lg font-bold text-white/90 md:text-xl">
+            <strong className="text-2xl font-extrabold text-white md:text-4xl">
               {result.word}
             </strong>
             {result.phonetic && (
-              <span className="ml-2 text-sm text-white/70">
+              <span className="text-md ml-2 font-medium text-white/60">
                 ({result.phonetic})
               </span>
             )}{" "}
@@ -84,14 +83,15 @@ export default function DictionaryResult({
         </div>
       </CardHeader>
       <CardContent className="space-y-6 p-6">
+        {" "}
         {result.examples && result.examples.length > 0 && (
           <div className="space-y-3">
-            <h3 className="text-md font-bold text-white/90">EXAMPLES:</h3>
+            <h3 className="text-md font-bold text-white/95">EXAMPLES:</h3>
             <ul className="space-y-2">
               {result.examples.map((example, index) => (
                 <li
                   key={index}
-                  className="font-mono text-white/70 italic backdrop-blur-sm"
+                  className="rounded-lg border border-white/15 bg-white/3 p-3 font-mono text-white/80 italic shadow-[inset_0_1px_0_rgba(255,255,255,0.1)] backdrop-blur-sm"
                 >
                   $ {example}
                 </li>
@@ -99,22 +99,22 @@ export default function DictionaryResult({
             </ul>
           </div>
         )}
-
         {result.usage && (
           <div className="space-y-2">
-            <h3 className="text-md font-bold text-white/90">USAGE:</h3>
-            <p className="font-mono text-white/70">{result.usage}</p>
+            <h3 className="text-md font-bold text-white/95">USAGE:</h3>
+            <p className="rounded-lg border border-white/15 bg-white/3 p-3 font-mono text-white/80 shadow-[inset_0_1px_0_rgba(255,255,255,0.1)]">
+              {result.usage}
+            </p>
           </div>
         )}
-
         {result.synonyms && result.synonyms.length > 0 && (
           <div className="space-y-3">
-            <h3 className="text-md font-bold text-white/90">SYNONYMS:</h3>
+            <h3 className="text-md font-bold text-white/95">SYNONYMS:</h3>
             <div className="flex flex-wrap gap-2">
               {result.synonyms.map((synonym, index) => (
                 <span
                   key={index}
-                  className="rounded-full bg-gradient-to-r from-[rgb(255,155,145,0.2)] to-[rgb(245,152,144,0.3)] px-4 py-1.5 font-mono text-sm text-white/90 shadow-[inset_0_1px_1px_rgba(255,255,255,0.2)] backdrop-blur-md transition-all hover:from-[rgb(255,155,145,0.3)] hover:to-[rgb(245,152,144,0.4)] hover:shadow-[inset_0_1px_1px_rgba(255,255,255,0.3)]"
+                  className="rounded-full border border-white/25 bg-gradient-to-r from-white/10 to-white/5 px-4 py-1.5 font-mono text-sm text-white/90 shadow-[inset_0_1px_0_rgba(255,255,255,0.15)] backdrop-blur-md transition-all hover:border-white/35 hover:from-white/20 hover:to-white/10 hover:shadow-[0_4px_16px_rgba(255,255,255,0.15),inset_0_1px_0_rgba(255,255,255,0.25)]"
                 >
                   {synonym}
                 </span>
