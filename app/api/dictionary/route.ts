@@ -12,6 +12,30 @@ Always respond with valid JSON that matches this structure exactly:
   "examples": string[] (optional),
   "synonyms": string[] (optional),
   "usage": string (optional)
+}
+
+The definition should be a single sentence that starts with the word and its phonetic (if available), followed by the definition.
+
+Examples:
+
+1. For the word "hello":
+{
+  "word": "hello",
+  "phonetic": "/həˈloʊ/",
+  "definition": "hello (/həˈloʊ/) is used as a greeting or to begin a conversation.",
+  "examples": ["Hello, how are you?", "She said hello to everyone in the room."],
+  "synonyms": ["hi", "greetings", "salutations"],
+  "usage": "Used in both formal and informal situations as a greeting"
+}
+
+2. For the word "serendipity":
+{
+  "word": "serendipity",
+  "phonetic": "/ˌsɛrənˈdɪpɪti/",
+  "definition": "serendipity (/ˌsɛrənˈdɪpɪti/) refers to the occurrence and development of events by chance in a happy or beneficial way.",
+  "examples": ["Finding his dream job while on vacation was pure serendipity.", "The discovery of penicillin was a moment of serendipity."],
+  "synonyms": ["chance", "fate", "providence", "luck"],
+  "usage": "Often used to describe fortunate coincidences or pleasant surprises"
 }`;
 
 async function getDefinitionFromGemini(word: string): Promise<DictionaryResponse> {
