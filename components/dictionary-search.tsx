@@ -7,7 +7,6 @@ import { SearchIcon } from "lucide-react";
 import { useDebounce } from "@/hooks/use-debounce";
 import DictionaryResult from "@/components/dictionary-result";
 import { DictionaryResponse } from "@/lib/types";
-import { getDefinition } from "@/app/api/dictionary/route";
 
 export default function DictionarySearch() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -28,10 +27,18 @@ export default function DictionarySearch() {
     setError(null);
 
     try {
-      const data = await getDefinition(searchTerm);
+      const response = await fetch(
+        `/api/dictionary?word=${encodeURIComponent(searchTerm)}`,
+      );
+      if (!response.ok) {
+        throw new Error("Failed to fetch definition");
+      }
+      const data = await response.json();
       setResult(data);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "An unexpected error occurred");
+      setError(
+        err instanceof Error ? err.message : "An unexpected error occurred",
+      );
       setResult(null);
     } finally {
       setLoading(false);
@@ -40,32 +47,38 @@ export default function DictionarySearch() {
   };
 
   return (
-    <div className={`w-full transition-all duration-700 ease-in-out ${hasSearched ? 'flex gap-8 items-center' : 'block'}`}>
-      <form onSubmit={handleSearch} className={`transition-all duration-700 ${hasSearched ? 'w-1/2' : 'w-full max-w-2xl mx-auto'}`}>
-        <div className="relative group">
+    <div
+      className={`w-full transition-all duration-700 ease-in-out ${hasSearched ? "flex items-center gap-8" : "block"}`}
+    >
+      <form
+        onSubmit={handleSearch}
+        className={`transition-all duration-700 ${hasSearched ? "w-1/2" : "mx-auto w-full max-w-2xl"}`}
+      >
+        <div className="group relative">
+          {" "}
           <Input
             type="text"
             placeholder="ENTER QUERY..."
-            className="h-14 pl-4 pr-14 text-lg rounded-xl border-2 bg-black/20 backdrop-blur-sm font-mono
-                     focus-visible:ring-offset-2 transition-all border-slate-700 hover:border-accent
-                     placeholder:text-slate-500"
+            className="h-14 rounded-xl border-2 border-gray-300 bg-white pr-14 pl-4 text-lg text-black shadow-sm transition-all placeholder:text-gray-500 hover:border-gray-400 focus:border-gray-600 focus-visible:ring-offset-2"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             autoFocus
           />
-          <Button 
-            type="submit" 
+          <Button
+            type="submit"
             size="icon"
-            className="absolute right-2 top-2 h-10 w-10 transition-all bg-transparense hover:bg-transparense"
+            className="absolute top-2 right-2 h-10 w-10 border-0 bg-transparent shadow-none transition-all hover:bg-gray-100/20"
             disabled={loading}
           >
-            <SearchIcon className="h-5 w-5 text-slate-500 hover:text-slate-100 transition-all" />
+            <SearchIcon className="h-5 w-5 text-gray-600 transition-all hover:text-gray-800" />
             <span className="sr-only">Search</span>
           </Button>
         </div>
       </form>
 
-      <div className={`transition-all duration-700 ${hasSearched ? 'w-1/2 opacity-100' : 'w-0 opacity-0'}`}>
+      <div
+        className={`transition-all duration-700 ${hasSearched ? "w-1/2 opacity-100" : "w-0 opacity-0"}`}
+      >
         <DictionaryResult result={result} loading={loading} error={error} />
       </div>
     </div>
