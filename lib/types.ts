@@ -6,3 +6,8 @@ export interface DictionaryResponse {
   synonyms?: string[];
   usage?: string;
 }
+
+export interface GeminiPromptConfig {
+  word: string;
+  response_structure: DictionaryResponse;
+}
