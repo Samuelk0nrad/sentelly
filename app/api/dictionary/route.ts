@@ -26,10 +26,10 @@ async function getDefinitionFromGemini(
 ): Promise<DictionaryResponse> {
 
 
-    const response = await ai.models.generateContent({
+  const response = await ai.models.generateContent({
     model: "gemini-2.0-flash",
     contents:
-      "List a few popular cookie recipes, and include the amounts of ingredients.",
+      `${SYSTEM_PROMPT}\n\nDefine the word: ${word}`,
     config: {
       responseMimeType: "application/json",
       responseSchema: {
