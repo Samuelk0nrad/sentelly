@@ -1,65 +1,102 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
-import { DictionaryResponse, GeminiPromptConfig } from "@/lib/types";
+import { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold, Type } from "@google/generative-ai";
+import { DictionaryResponse } from "@/lib/types";
 
 // Initialize the Gemini API with safety settings
 const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY!);
 
-const SYSTEM_PROMPT = `You are a dictionary API that provides detailed word definitions. 
-Always respond with valid JSON that matches this structure exactly:
-{
-  "word": string,
-  "phonetic": string (optional),
-  "definition": string,
-  "examples": string[] (optional),
-  "synonyms": string[] (optional),
-  "usage": string (optional)
-}
-
-The definition should be a single sentence that starts with the word and its phonetic (if available), followed by the definition.
-
-Examples:
-
-1. For the word "hello":
-{
-  "word": "hello",
-  "phonetic": "/həˈloʊ/",
-  "definition": "hello (/həˈloʊ/) is used as a greeting or to begin a conversation.",
-  "examples": ["Hello, how are you?", "She said hello to everyone in the room."],
-  "synonyms": ["hi", "greetings", "salutations"],
-  "usage": "Used in both formal and informal situations as a greeting"
-}
-
-2. For the word "serendipity":
-{
-  "word": "serendipity",
-  "phonetic": "/ˌsɛrənˈdɪpɪti/",
-  "definition": "serendipity (/ˌsɛrənˈdɪpɪti/) refers to the occurrence and development of events by chance in a happy or beneficial way.",
-  "examples": ["Finding his dream job while on vacation was pure serendipity.", "The discovery of penicillin was a moment of serendipity."],
-  "synonyms": ["chance", "fate", "providence", "luck"],
-  "usage": "Often used to describe fortunate coincidences or pleasant surprises"
-}`;
+const SYSTEM_PROMPT = `You are a dictionary API that provides detailed word definitions.`;
 
 async function getDefinitionFromGemini(word: string): Promise<DictionaryResponse> {
   const model = genAI.getGenerativeModel({ 
-    model: "gemini-2.0-flash-001",
+    model: "gemini-pro",
     generationConfig: {
-      temperature: 0.1, // Lower temperature for more consistent outputs
+      temperature: 0.1,
       topP: 0.1,
       topK: 16,
     },
+    safetySettings: [
+      {
+        category: HarmCategory.HARM_CATEGORY_HARASSMENT,
+        threshold: HarmBlockThreshold.BLOCK_NONE,
+      },
+      {
+        category: HarmCategory.HARM_CATEGORY_HATE_SPEECH,
+        threshold: HarmBlockThreshold.BLOCK_NONE,
+      },
+      {
+        category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT,
+        threshold: HarmBlockThreshold.BLOCK_NONE,
+      },
+      {
+        category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
+        threshold: HarmBlockThreshold.BLOCK_NONE,
+      },
+    ],
   });
 
-  const prompt = {
-    word,
-    instructions: "Provide a dictionary definition following the exact format shown in the examples. The definition MUST start with the word and its phonetic pronunciation.",
-    format: "JSON only, no additional text or explanations"
-  };
-
   try {
-    const result = await model.generateContent([
-      { text: SYSTEM_PROMPT },
-      { text: JSON.stringify(prompt, null, 2) }
-    ]);
+    const result = await model.generateContent({
+      contents: [{ text: `Define the word: ${word}` }],
+      generationConfig: {
+        temperature: 0.1,
+        topP: 0.1,
+        topK: 16,
+      },
+      safetySettings: [
+        {
+          category: HarmCategory.HARM_CATEGORY_HARASSMENT,
+          threshold: HarmBlockThreshold.BLOCK_NONE,
+        },
+        {
+          category: HarmCategory.HARM_CATEGORY_HATE_SPEECH,
+          threshold: HarmBlockThreshold.BLOCK_NONE,
+        },
+        {
+          category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT,
+          threshold: HarmBlockThreshold.BLOCK_NONE,
+        },
+        {
+          category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
+          threshold: HarmBlockThreshold.BLOCK_NONE,
+        },
+      ],
+      responseSchema: {
+        type: Type.OBJECT,
+        properties: {
+          word: {
+            type: Type.STRING,
+            description: "The word being defined"
+          },
+          phonetic: {
+            type: Type.STRING,
+            description: "The phonetic pronunciation of the word"
+          },
+          definition: {
+            type: Type.STRING,
+            description: "A single sentence definition that starts with the word and its phonetic"
+          },
+          examples: {
+            type: Type.ARRAY,
+            items: {
+              type: Type.STRING
+            },
+            description: "Example sentences using the word"
+          },
+          synonyms: {
+            type: Type.ARRAY,
+            items: {
+              type: Type.STRING
+            },
+            description: "List of synonyms for the word"
+          },
+          usage: {
+            type: Type.STRING,
+            description: "Description of how the word is typically used"
+          }
+        },
+        required: ["word", "definition"],
+      }
+    });
 
     const response = await result.response;
     const text = response.text();
