@@ -44,7 +44,7 @@ async function getDefinitionFromGemini(word: string) {
     const prompt = `${SYSTEM_PROMPT}\n\nDefine the word: ${word}`;
 
     const response = await ai.models.generateContent({
-      model: "gemini-2.0-flash",
+      model: "gemini-2.0-flash-lite",
       contents: prompt,
       config: {
         responseMimeType: "application/json",
