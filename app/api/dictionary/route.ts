@@ -22,7 +22,7 @@ Examples:
 {
   "word": "hello",
   "phonetic": "/həˈloʊ/",
-  "definition": "hello (/həˈloʊ/) is used as a greeting or to begin a conversation.",
+  "definition": "is used as a greeting or to begin a conversation.",
   "examples": ["Hello, how are you?", "She said hello to everyone in the room."],
   "synonyms": ["hi", "greetings", "salutations"],
   "usage": "Used in both formal and informal situations as a greeting"
@@ -32,7 +32,7 @@ Examples:
 {
   "word": "serendipity",
   "phonetic": "/ˌsɛrənˈdɪpɪti/",
-  "definition": "serendipity (/ˌsɛrənˈdɪpɪti/) refers to the occurrence and development of events by chance in a happy or beneficial way.",
+  "definition": "refers to the occurrence and development of events by chance in a happy or beneficial way.",
   "examples": ["Finding his dream job while on vacation was pure serendipity.", "The discovery of penicillin was a moment of serendipity."],
   "synonyms": ["chance", "fate", "providence", "luck"],
   "usage": "Often used to describe fortunate coincidences or pleasant surprises"
