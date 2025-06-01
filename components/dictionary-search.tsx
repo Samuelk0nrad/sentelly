@@ -4,9 +4,16 @@ import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { SearchIcon } from "lucide-react";
-import { useDebounce } from "@/hooks/use-debounce";
 import DictionaryResult from "@/components/dictionary-result";
-import { DictionaryResponse } from "@/lib/types";
+
+interface DictionaryResponse {
+  word: string;
+  phonetic: string;
+  definition: string;
+  examples: string[];
+  synonyms: string[];
+  usage: string;
+}
 
 export default function DictionarySearch() {
   const [searchTerm, setSearchTerm] = useState("");

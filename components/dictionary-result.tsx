@@ -1,16 +1,18 @@
 "use client";
 
-import { DictionaryResponse } from "@/lib/types";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { AlertCircle } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+
+interface DictionaryResponse {
+  word: string;
+  phonetic: string;
+  definition: string;
+  examples: string[];
+  synonyms: string[];
+  usage: string;
+}
 
 interface DictionaryResultProps {
   result: DictionaryResponse | null;
