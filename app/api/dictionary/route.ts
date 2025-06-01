@@ -4,7 +4,16 @@ import { DictionaryResponse } from "@/lib/types";
 // Initialize the Gemini API with safety settings
 const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY!);
 
-const SYSTEM_PROMPT = `You are a dictionary API that provides detailed word definitions.`;
+const SYSTEM_PROMPT = `You are a dictionary API that provides detailed word definitions. 
+Please provide responses in the following JSON format:
+{
+  "word": "the word being defined",
+  "phonetic": "phonetic pronunciation",
+  "definition": "a single sentence definition that starts with the word and its phonetic",
+  "examples": ["example sentences", "using the word"],
+  "synonyms": ["list", "of", "synonyms"],
+  "usage": "description of how the word is typically used"
+}`;
 
 async function getDefinitionFromGemini(word: string): Promise<DictionaryResponse> {
   const model = genAI.getGenerativeModel({ 
@@ -35,69 +44,9 @@ async function getDefinitionFromGemini(word: string): Promise<DictionaryResponse
   });
 
   try {
-    const result = await model.generateContent({
-      contents: [{ text: `Define the word: ${word}` }],
-      generationConfig: {
-        temperature: 0.1,
-        topP: 0.1,
-        topK: 16,
-      },
-      safetySettings: [
-        {
-          category: HarmCategory.HARM_CATEGORY_HARASSMENT,
-          threshold: HarmBlockThreshold.BLOCK_NONE,
-        },
-        {
-          category: HarmCategory.HARM_CATEGORY_HATE_SPEECH,
-          threshold: HarmBlockThreshold.BLOCK_NONE,
-        },
-        {
-          category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT,
-          threshold: HarmBlockThreshold.BLOCK_NONE,
-        },
-        {
-          category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
-          threshold: HarmBlockThreshold.BLOCK_NONE,
-        },
-      ],
-      responseSchema: {
-        type: genAI.protos.FunctionDeclaration.Schema.Type.OBJECT,
-        properties: {
-          word: {
-            type: genAI.protos.FunctionDeclaration.Schema.Type.STRING,
-            description: "The word being defined"
-          },
-          phonetic: {
-            type: genAI.protos.FunctionDeclaration.Schema.Type.STRING,
-            description: "The phonetic pronunciation of the word"
-          },
-          definition: {
-            type: genAI.protos.FunctionDeclaration.Schema.Type.STRING,
-            description: "A single sentence definition that starts with the word and its phonetic"
-          },
-          examples: {
-            type: genAI.protos.FunctionDeclaration.Schema.Type.ARRAY,
-            items: {
-              type: genAI.protos.FunctionDeclaration.Schema.Type.STRING
-            },
-            description: "Example sentences using the word"
-          },
-          synonyms: {
-            type: genAI.protos.FunctionDeclaration.Schema.Type.ARRAY,
-            items: {
-              type: genAI.protos.FunctionDeclaration.Schema.Type.STRING
-            },
-            description: "List of synonyms for the word"
-          },
-          usage: {
-            type: genAI.protos.FunctionDeclaration.Schema.Type.STRING,
-            description: "Description of how the word is typically used"
-          }
-        },
-        required: ["word", "definition"],
-      }
-    });
-
+    const prompt = `${SYSTEM_PROMPT}\n\nDefine the word: ${word}`;
+    
+    const result = await model.generateContent(prompt);
     const response = await result.response;
     const text = response.text();
     
