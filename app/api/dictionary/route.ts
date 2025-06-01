@@ -30,25 +30,7 @@ async function getDefinitionFromGemini(
       temperature: 0.1,
       topP: 0.1,
       topK: 16,
-    },
-    safetySettings: [
-      {
-        category: HarmCategory.HARASSMENT,
-        threshold: HarmBlockThreshold.BLOCK_NONE,
-      },
-      {
-        category: HarmCategory.HATE_SPEECH,
-        threshold: HarmBlockThreshold.BLOCK_NONE,
-      },
-      {
-        category: HarmCategory.SEXUALLY_EXPLICIT,
-        threshold: HarmBlockThreshold.BLOCK_NONE,
-      },
-      {
-        category: HarmCategory.DANGEROUS_CONTENT,
-        threshold: HarmBlockThreshold.BLOCK_NONE,
-      },
-    ],
+    }
   });
 
   try {
