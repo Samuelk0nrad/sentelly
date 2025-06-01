@@ -1,4 +1,4 @@
-import { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold, Type } from "@google/generative-ai";
+import { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } from "@google/generative-ai";
 import { DictionaryResponse } from "@/lib/types";
 
 // Initialize the Gemini API with safety settings
@@ -61,36 +61,36 @@ async function getDefinitionFromGemini(word: string): Promise<DictionaryResponse
         },
       ],
       responseSchema: {
-        type: Type.OBJECT,
+        type: genAI.protos.FunctionDeclaration.Schema.Type.OBJECT,
         properties: {
           word: {
-            type: Type.STRING,
+            type: genAI.protos.FunctionDeclaration.Schema.Type.STRING,
             description: "The word being defined"
           },
           phonetic: {
-            type: Type.STRING,
+            type: genAI.protos.FunctionDeclaration.Schema.Type.STRING,
             description: "The phonetic pronunciation of the word"
           },
           definition: {
-            type: Type.STRING,
+            type: genAI.protos.FunctionDeclaration.Schema.Type.STRING,
             description: "A single sentence definition that starts with the word and its phonetic"
           },
           examples: {
-            type: Type.ARRAY,
+            type: genAI.protos.FunctionDeclaration.Schema.Type.ARRAY,
             items: {
-              type: Type.STRING
+              type: genAI.protos.FunctionDeclaration.Schema.Type.STRING
             },
             description: "Example sentences using the word"
           },
           synonyms: {
-            type: Type.ARRAY,
+            type: genAI.protos.FunctionDeclaration.Schema.Type.ARRAY,
             items: {
-              type: Type.STRING
+              type: genAI.protos.FunctionDeclaration.Schema.Type.STRING
             },
             description: "List of synonyms for the word"
           },
           usage: {
-            type: Type.STRING,
+            type: genAI.protos.FunctionDeclaration.Schema.Type.STRING,
             description: "Description of how the word is typically used"
           }
         },
