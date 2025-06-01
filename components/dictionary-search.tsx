@@ -70,7 +70,6 @@ export default function DictionarySearch() {
             onChange={(e) => setSearchTerm(e.target.value)}
             autoFocus
           />
-          <Button
             type="submit"
             size="icon"
 className="absolute top-2 right-2 h-10 w-10 rounded-xl border border-white/25 bg-[#fcbf9e] shadow-none transition-all hover:border-white/35 hover:bg-[#fdd3b8] hover:shadow-[0_4px_16px_rgba(255,255,255,0.15),inset_0_1px_0_rgba(255,255,255,0.25)]"
