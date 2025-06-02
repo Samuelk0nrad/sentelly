@@ -97,7 +97,7 @@ export function AuthDialog() {
           toast({
             variant: "destructive",
             title: "Error logging in",
-            description: error.message,
+            description: error?.message ?? "",
           });
         }
       }
@@ -105,7 +105,7 @@ export function AuthDialog() {
       toast({
         variant: "destructive",
         title: "Error",
-        description: error.message || "An unexpected error occurred",
+        description: error?.message ?? "An unexpected error occurred",
       });
     } finally {
       setIsLoading(false);
@@ -126,14 +126,14 @@ export function AuthDialog() {
         toast({
           variant: "destructive",
           title: "Error logging out",
-          description: error?.message || "Failed to logout",
+          description: error?.message ?? "Failed to logout",
         });
       }
     } catch (error: any) {
       toast({
         variant: "destructive",
         title: "Error",
-        description: error.message || "An unexpected error occurred",
+        description: error?.message ?? "An unexpected error occurred",
       });
     } finally {
       setIsLoading(false);
