@@ -80,7 +80,7 @@ export function AuthDialog() {
           toast({
             variant: "destructive",
             title: "Error creating account",
-            description: error.message ?? "",
+            description: error?.message ?? "",
           });
         }
       } else {
