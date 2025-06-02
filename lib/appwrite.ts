@@ -1,8 +1,22 @@
 import { Client, Account, ID } from "appwrite";
 
-const client = new Client()
-  .setEndpoint(process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT!)
-  .setProject(process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID!);
+// Ensure environment variables are available
+const appwriteEndpoint = process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT;
+const appwriteProjectId = process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID;
+
+if (!appwriteEndpoint || !appwriteProjectId) {
+  console.warn("Appwrite environment variables are not set");
+}
+
+const client = new Client();
+
+// Only set endpoint and project if they exist
+if (appwriteEndpoint) {
+  client.setEndpoint(appwriteEndpoint);
+}
+if (appwriteProjectId) {
+  client.setProject(appwriteProjectId);
+}
 
 export const account = new Account(client);
 export { client };
