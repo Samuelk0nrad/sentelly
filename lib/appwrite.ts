@@ -1,4 +1,4 @@
-import { Client, Account } from 'appwrite';
+import { Client, Account, ID } from 'appwrite';
 
 const client = new Client()
   .setEndpoint('https://cloud.appwrite.io/v1')
@@ -10,29 +10,37 @@ export const login = async (email: string, password: string) => {
   try {
     const session = await account.createEmailSession(email, password);
     return { success: true, data: session };
-  } catch (error) {
-    return { success: false, error };
+  } catch (error: any) {
+    return { 
+      success: false, 
+      error: { message: error.message || 'Failed to login' } 
+    };
   }
 };
 
 export const register = async (email: string, password: string, name: string) => {
   try {
-    const user = await account.create('unique()', email, password, name);
-    if (user) {
-      await login(email, password);
-    }
-    return { success: true, data: user };
-  } catch (error) {
-    return { success: false, error };
+    const user = await account.create(ID.unique(), email, password, name);
+    // After successful registration, automatically log in
+    const session = await login(email, password);
+    return { success: true, data: { user, session } };
+  } catch (error: any) {
+    return { 
+      success: false, 
+      error: { message: error.message || 'Failed to create account' } 
+    };
   }
 };
 
 export const logout = async () => {
   try {
     await account.deleteSession('current');
-    return { success: true };
-  } catch (error) {
-    return { success: false, error };
+    return { success: true, error: null };
+  } catch (error: any) {
+    return { 
+      success: false, 
+      error: { message: error.message || 'Failed to logout' } 
+    };
   }
 };
 
@@ -40,7 +48,10 @@ export const getCurrentUser = async () => {
   try {
     const user = await account.get();
     return { success: true, data: user };
-  } catch (error) {
-    return { success: false, error };
+  } catch (error: any) {
+    return { 
+      success: false, 
+      error: { message: error.message || 'Failed to get current user' } 
+    };
   }
 };

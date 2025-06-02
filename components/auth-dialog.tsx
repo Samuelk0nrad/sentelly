@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -55,7 +55,7 @@ export function AuthDialog() {
     }
   };
 
-  useState(() => {
+  useEffect(() => {
     checkCurrentUser();
   }, []);
 
@@ -74,7 +74,8 @@ export function AuthDialog() {
             description: "Welcome to Sendelly!",
           });
           setIsOpen(false);
-          checkCurrentUser();
+          await checkCurrentUser();
+          form.reset();
         } else {
           toast({
             variant: "destructive",
@@ -90,7 +91,8 @@ export function AuthDialog() {
             description: "Welcome back!",
           });
           setIsOpen(false);
-          checkCurrentUser();
+          await checkCurrentUser();
+          form.reset();
         } else {
           toast({
             variant: "destructive",
@@ -99,11 +101,11 @@ export function AuthDialog() {
           });
         }
       }
-    } catch (error) {
+    } catch (error: any) {
       toast({
         variant: "destructive",
         title: "Error",
-        description: "An unexpected error occurred",
+        description: error.message || "An unexpected error occurred",
       });
     } finally {
       setIsLoading(false);
@@ -124,14 +126,14 @@ export function AuthDialog() {
         toast({
           variant: "destructive",
           title: "Error logging out",
-          description: error.message,
+          description: error?.message || "Failed to logout",
         });
       }
-    } catch (error) {
+    } catch (error: any) {
       toast({
         variant: "destructive",
         title: "Error",
-        description: "An unexpected error occurred",
+        description: error.message || "An unexpected error occurred",
       });
     } finally {
       setIsLoading(false);
@@ -265,7 +267,10 @@ export function AuthDialog() {
                   <Button
                     type="button"
                     variant="ghost"
-                    onClick={() => setIsSignUp(!isSignUp)}
+                    onClick={() => {
+                      setIsSignUp(!isSignUp);
+                      form.reset();
+                    }}
                     className="text-white/60 hover:text-white"
                   >
                     {isSignUp
