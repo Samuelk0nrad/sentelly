@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 import DictionarySearch from "@/components/dictionary-search";
 import { ModeToggle } from "@/components/mode-toggle";
+import { AuthDialog } from "@/components/auth-dialog";
 
 export default function Home() {
   return (
@@ -8,7 +9,8 @@ export default function Home() {
       <div className="sparrow-gradient flex h-screen w-full flex-col items-center justify-center p-4 md:p-8">
         <div className="mx-auto flex h-full w-full max-w-[1200px] flex-col">
           <header className="mb-8 flex-1 text-center">
-            <div className="absolute top-4 right-4">
+            <div className="absolute right-4 top-4 flex items-center gap-2">
+              <AuthDialog />
               <ModeToggle />
             </div>
             <h1 className="mt-8 text-4xl font-bold md:text-5xl">Sendelly</h1>
