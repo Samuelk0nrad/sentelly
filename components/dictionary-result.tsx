@@ -68,19 +68,19 @@ export default function DictionaryResult({
   if (loading) {
     return (
       <Card className="animate-fade-in w-full overflow-hidden rounded-2xl border-0 bg-white/5 backdrop-blur-lg">
-        <CardHeader>
-          <Skeleton className="mb-2 h-8 w-1/3 bg-white/10" />
-          <Skeleton className="h-4 w-2/3 bg-white/10" />
+        <CardHeader className="p-4 md:p-6">
+          <Skeleton className="mb-2 h-6 md:h-8 w-1/3 bg-white/10" />
+          <Skeleton className="h-3 md:h-4 w-2/3 bg-white/10" />
         </CardHeader>
-        <CardContent className="space-y-4">
-          <Skeleton className="h-4 w-full bg-white/10" />
-          <Skeleton className="h-4 w-full bg-white/10" />
-          <Skeleton className="h-4 w-3/4 bg-white/10" />
+        <CardContent className="space-y-3 md:space-y-4 p-4 md:p-6">
+          <Skeleton className="h-3 md:h-4 w-full bg-white/10" />
+          <Skeleton className="h-3 md:h-4 w-full bg-white/10" />
+          <Skeleton className="h-3 md:h-4 w-3/4 bg-white/10" />
 
-          <div className="pt-4">
-            <Skeleton className="mb-2 h-5 w-1/4 bg-white/10" />
-            <Skeleton className="h-4 w-full bg-white/10" />
-            <Skeleton className="mt-1 h-4 w-5/6 bg-white/10" />
+          <div className="pt-3 md:pt-4">
+            <Skeleton className="mb-2 h-4 md:h-5 w-1/4 bg-white/10" />
+            <Skeleton className="h-3 md:h-4 w-full bg-white/10" />
+            <Skeleton className="mt-1 h-3 md:h-4 w-5/6 bg-white/10" />
           </div>
         </CardContent>
       </Card>
@@ -95,7 +95,7 @@ export default function DictionaryResult({
       >
         <AlertCircle className="h-4 w-4 text-red-400" />
         <AlertTitle className="text-red-400">ERROR</AlertTitle>
-        <AlertDescription className="font-mono text-red-300">
+        <AlertDescription className="font-mono text-sm md:text-base text-red-300">
           {error}
         </AlertDescription>
       </Alert>
@@ -108,40 +108,42 @@ export default function DictionaryResult({
 
   return (
     <Card className="animate-fade-in w-full overflow-hidden rounded-2xl border border-white/50 bg-gray-300/20 backdrop-blur-2xl">
-      <CardHeader className="relative backdrop-blur-sm">
+      <CardHeader className="relative backdrop-blur-sm p-4 md:p-6">
         <div className="relative z-10">
-          <p className="text-md font-mono text-lg font-bold text-white/90 md:text-xl">
-            <strong className="text-2xl font-extrabold text-white md:text-4xl">
+          <p className="text-sm md:text-md font-mono text-base md:text-lg font-bold text-white/90 lg:text-xl">
+            <strong className="text-xl md:text-2xl lg:text-4xl font-extrabold text-white block md:inline">
               {result.word}
             </strong>
             {result.phonetic && (
-              <span className="text-md ml-2 font-medium text-white/60">
+              <span className="text-sm md:text-md ml-0 md:ml-2 font-medium text-white/60 block md:inline mt-1 md:mt-0">
                 ({result.phonetic})
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="ml-1 h-6 w-6 rounded-full border border-white/25 bg-white/10 p-1 hover:bg-white/20"
+                  className="ml-1 h-5 w-5 md:h-6 md:w-6 rounded-full border border-white/25 bg-white/10 p-1 hover:bg-white/20"
                   onClick={() => playAudio(result.word)}
                   disabled={isPlaying}
                 >
-                  <Volume2 className="h-3 w-3 text-white/80" />
+                  <Volume2 className="h-2.5 w-2.5 md:h-3 md:w-3 text-white/80" />
                   <span className="sr-only">Play pronunciation</span>
                 </Button>
               </span>
-            )}{" "}
-            {result.definition}
+            )}
+            <span className="block mt-2 md:mt-0 md:inline text-sm md:text-base lg:text-lg font-normal">
+              {result.definition}
+            </span>
           </p>
         </div>
       </CardHeader>
-      <CardContent className="space-y-6 p-6">
+      <CardContent className="space-y-4 md:space-y-6 p-4 md:p-6">
         {result.examples && result.examples.length > 0 && (
-          <div className="space-y-3">
-            <h3 className="text-md font-bold text-white/95">EXAMPLES:</h3>
+          <div className="space-y-2 md:space-y-3">
+            <h3 className="text-sm md:text-md font-bold text-white/95">EXAMPLES:</h3>
             <ul className="space-y-2">
               {result.examples.map((example, index) => (
                 <li
                   key={index}
-                  className="rounded-lg border border-white/15 bg-white/3 p-3 font-mono text-white/80 italic shadow-[inset_0_1px_0_rgba(255,255,255,0.1)] backdrop-blur-sm"
+                  className="rounded-lg border border-white/15 bg-white/3 p-2.5 md:p-3 font-mono text-sm md:text-base text-white/80 italic shadow-[inset_0_1px_0_rgba(255,255,255,0.1)] backdrop-blur-sm"
                 >
                   $ {example}
                 </li>
@@ -151,20 +153,20 @@ export default function DictionaryResult({
         )}
         {result.usage && (
           <div className="space-y-2">
-            <h3 className="text-md font-bold text-white/95">USAGE:</h3>
-            <p className="rounded-lg border border-white/15 bg-white/3 p-3 font-mono text-white/80 shadow-[inset_0_1px_0_rgba(255,255,255,0.1)]">
+            <h3 className="text-sm md:text-md font-bold text-white/95">USAGE:</h3>
+            <p className="rounded-lg border border-white/15 bg-white/3 p-2.5 md:p-3 font-mono text-sm md:text-base text-white/80 shadow-[inset_0_1px_0_rgba(255,255,255,0.1)]">
               {result.usage}
             </p>
           </div>
         )}
         {result.synonyms && result.synonyms.length > 0 && (
-          <div className="space-y-3">
-            <h3 className="text-md font-bold text-white/95">SYNONYMS:</h3>
-            <div className="flex flex-wrap gap-2">
+          <div className="space-y-2 md:space-y-3">
+            <h3 className="text-sm md:text-md font-bold text-white/95">SYNONYMS:</h3>
+            <div className="flex flex-wrap gap-1.5 md:gap-2">
               {result.synonyms.map((synonym, index) => (
                 <span
                   key={index}
-                  className="rounded-full border border-white/25 bg-gradient-to-r from-white/10 to-white/5 px-4 py-1.5 font-mono text-sm text-white/90 shadow-[inset_0_1px_0_rgba(255,255,255,0.15)] backdrop-blur-md transition-all hover:border-white/35 hover:from-white/20 hover:to-white/10 hover:shadow-[0_4px_16px_rgba(255,255,255,0.15),inset_0_1px_0_rgba(255,255,255,0.25)]"
+                  className="rounded-full border border-white/25 bg-gradient-to-r from-white/10 to-white/5 px-3 md:px-4 py-1 md:py-1.5 font-mono text-xs md:text-sm text-white/90 shadow-[inset_0_1px_0_rgba(255,255,255,0.15)] backdrop-blur-md transition-all hover:border-white/35 hover:from-white/20 hover:to-white/10 hover:shadow-[0_4px_16px_rgba(255,255,255,0.15),inset_0_1px_0_rgba(255,255,255,0.25)]"
                 >
                   {synonym}
                 </span>
