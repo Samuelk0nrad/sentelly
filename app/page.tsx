@@ -9,6 +9,7 @@ export default function Home() {
       <div className="sparrow-gradient flex h-screen w-full flex-col items-center justify-center p-4 md:p-8">
         <div className="mx-auto flex h-full w-full max-w-[1200px] flex-col">
           <header className="mb-4 md:mb-8 flex-1 text-center">
+?
             <h1 className="mt-4 md:mt-8 text-3xl md:text-4xl lg:text-5xl font-bold">Sendelly</h1>
           </header>
 
