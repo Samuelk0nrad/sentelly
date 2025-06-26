@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { SearchIcon } from "lucide-react";
@@ -20,17 +21,30 @@ interface DictionaryResponse {
 }
 
 export default function DictionarySearch() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const [searchTerm, setSearchTerm] = useState("");
   const [result, setResult] = useState<DictionaryResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [hasSearched, setHasSearched] = useState(false);
 
-  const handleSearch = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!searchTerm.trim()) {
+  // Load word from URL parameter on component mount
+  useEffect(() => {
+    const wordFromUrl = searchParams.get("word");
+    if (wordFromUrl) {
+      setSearchTerm(wordFromUrl);
+      performSearch(wordFromUrl);
+    }
+  }, [searchParams]);
+
+  const performSearch = async (word: string) => {
+    if (!word.trim()) {
       setResult(null);
       setError(null);
+      setHasSearched(false);
+      // Clear URL parameter when search is empty
+      router.push("/", { scroll: false });
       return;
     }
     
@@ -40,13 +54,18 @@ export default function DictionarySearch() {
 
     try {
       const response = await fetch(
-        `/api/dictionary?word=${encodeURIComponent(searchTerm)}`,
+        `/api/dictionary?word=${encodeURIComponent(word)}`,
       );
       if (!response.ok) {
         throw new Error("Failed to fetch definition");
       }
       const data = await response.json();
       setResult(data);
+      
+      // Update URL with the searched word
+      const params = new URLSearchParams();
+      params.set("word", word.trim());
+      router.push(`/?${params.toString()}`, { scroll: false });
     } catch (err) {
       setError(
         err instanceof Error ? err.message : "An unexpected error occurred",
@@ -54,7 +73,24 @@ export default function DictionarySearch() {
       setResult(null);
     } finally {
       setLoading(false);
-      setHasSearched(true);
+    }
+  };
+
+  const handleSearch = async (e: React.FormEvent) => {
+    e.preventDefault();
+    await performSearch(searchTerm);
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setSearchTerm(value);
+    
+    // If input is cleared, clear the URL parameter and reset state
+    if (!value.trim()) {
+      setResult(null);
+      setError(null);
+      setHasSearched(false);
+      router.push("/", { scroll: false });
     }
   };
 
@@ -72,7 +108,7 @@ export default function DictionarySearch() {
             placeholder="ENTER QUERY..."
             className="h-12 md:h-14 rounded-2xl border border-white/50 bg-gray-300/20 pr-12 md:pr-14 pl-3 md:pl-4 text-base md:text-lg text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.1)] backdrop-blur-2xl transition-all placeholder:text-white/50 hover:border-white/60 focus:border-white/70 focus-visible:ring-0 focus-visible:ring-offset-0"
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            onChange={handleInputChange}
             autoFocus
           />
           <Button
