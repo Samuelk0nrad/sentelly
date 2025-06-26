@@ -118,7 +118,7 @@
     rgba(255, 0, 0, 0.6) 60%,
     rgba(255, 0, 0, 0) 100%
   );
-  transform: translateX(-50%) scaleX(1.5) rotate(-10deg);
+  transform: translateX(-50%) scaleX(1.5);
   opacity: 0.8;
   z-index: -1;
 }
