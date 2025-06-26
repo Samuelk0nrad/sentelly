@@ -38,10 +38,14 @@ export interface WordDocument {
 
 // Auth functions for client-side usage
 export const login = async (email: string, password: string) => {
+  console.log("Login function called with email:", email);
   try {
+    console.log("Creating session...");
     const session = await account.createEmailPasswordSession(email, password);
+    console.log("Session created successfully:", session);
     return { success: true, data: session };
   } catch (error: any) {
+    console.error("Login error:", error);
     return {
       success: false,
       error: { message: error.message || "Failed to login" },

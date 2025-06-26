@@ -12,7 +12,6 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import {
   Form,
@@ -29,15 +28,18 @@ import { login, register, logout, getCurrentUser } from "@/lib/client/appwrite";
 const formSchema = z.object({
   email: z.string().email("Invalid email address"),
   password: z.string().min(8, "Password must be at least 8 characters"),
-  name: z.string().min(2, "Name must be at least 2 characters").optional(),
+  name: z.string().optional(),
 });
 
 export function AuthDialog() {
+  console.log("AuthDialog component rendering");
   const [isLoading, setIsLoading] = useState(false);
   const [isSignUp, setIsSignUp] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const [user, setUser] = useState<any>(null);
   const { toast } = useToast();
+
+  console.log("AuthDialog state:", { isLoading, isSignUp, isOpen, user });
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -60,6 +62,18 @@ export function AuthDialog() {
   }, []);
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    console.log("onSubmit called with values:", values);
+    console.log("isSignUp:", isSignUp);
+
+    // Manual validation for signup mode
+    if (isSignUp && (!values.name || values.name.length < 2)) {
+      form.setError("name", {
+        type: "manual",
+        message: "Name must be at least 2 characters",
+      });
+      return;
+    }
+
     setIsLoading(true);
     try {
       if (isSignUp) {
@@ -84,7 +98,9 @@ export function AuthDialog() {
           });
         }
       } else {
+        console.log("Attempting login with:", values.email);
         const { success, error } = await login(values.email, values.password);
+        console.log("Login result:", { success, error });
         if (success) {
           toast({
             title: "Logged in successfully",
@@ -144,7 +160,7 @@ export function AuthDialog() {
     <div className="flex items-center gap-1 sm:gap-2">
       {user ? (
         <>
-          <span className="hidden text-xs sm:text-sm text-white/80 sm:inline max-w-24 sm:max-w-32 md:max-w-none truncate">
+          <span className="hidden max-w-24 truncate text-xs text-white/80 sm:inline sm:max-w-32 sm:text-sm md:max-w-none">
             Hello, {user.name || user.email}
           </span>
           <Button
@@ -152,143 +168,172 @@ export function AuthDialog() {
             size="sm"
             onClick={handleLogout}
             disabled={isLoading}
-            className="h-7 sm:h-8 md:h-9 rounded-full border-white/25 bg-white/10 px-2 sm:px-3 text-xs sm:text-sm text-white/80 hover:bg-white/20 hover:text-white"
+            className="h-7 rounded-full border-white/25 bg-white/10 px-2 text-xs text-white/80 hover:bg-white/20 hover:text-white sm:h-8 sm:px-3 sm:text-sm md:h-9"
           >
             {isLoading ? (
-              <Loader2 className="h-3 w-3 sm:h-4 sm:w-4 animate-spin" />
+              <Loader2 className="h-3 w-3 animate-spin sm:h-4 sm:w-4" />
             ) : (
               <LogOut className="mr-1 h-3 w-3 sm:h-4 sm:w-4" />
             )}
-            <span className="hidden xs:inline sm:hidden md:inline">Logout</span>
+            <span className="xs:inline hidden sm:hidden md:inline">Logout</span>
             <span className="xs:hidden sm:inline md:hidden">Out</span>
           </Button>
         </>
       ) : (
-        <Dialog open={isOpen} onOpenChange={setIsOpen}>
-          <DialogTrigger asChild>
-            <Button
-              variant="outline"
-              size="sm"
-              className="h-7 sm:h-8 md:h-9 rounded-full border-white/25 bg-white/10 px-2 sm:px-3 text-xs sm:text-sm text-white/80 hover:bg-white/20 hover:text-white"
-            >
-              <LogIn className="mr-1 h-3 w-3 sm:h-4 sm:w-4" />
-              Login
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="mx-2 sm:mx-4 max-w-xs sm:max-w-sm md:max-w-md rounded-xl sm:rounded-2xl border border-white/50 bg-gray-300/20 backdrop-blur-2xl">
-            <DialogHeader>
-              <DialogTitle className="text-base sm:text-lg md:text-xl text-white/90">
-                {isSignUp ? "Create an account" : "Welcome back"}
-              </DialogTitle>
-              <DialogDescription className="text-xs sm:text-sm md:text-base text-white/60">
-                {isSignUp
-                  ? "Enter your details to create a new account"
-                  : "Enter your credentials to login"}
-              </DialogDescription>
-            </DialogHeader>
-            <Form {...form}>
-              <form
-                onSubmit={form.handleSubmit(onSubmit)}
-                className="space-y-3 sm:space-y-4"
-              >
-                {isSignUp && (
+        <div>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={(e) => {
+              console.log("Direct button click test", e);
+              setIsOpen(true);
+            }}
+            className="h-7 rounded-full border-white/25 bg-white/10 px-2 text-xs text-white/80 hover:bg-white/20 hover:text-white sm:h-8 sm:px-3 sm:text-sm md:h-9"
+          >
+            <LogIn className="mr-1 h-3 w-3 sm:h-4 sm:w-4" />
+            Login
+          </Button>
+
+          <Dialog
+            open={isOpen}
+            onOpenChange={(open) => {
+              console.log("Dialog open state changing to:", open);
+              setIsOpen(open);
+            }}
+          >
+            <DialogContent className="mx-2 max-w-xs rounded-xl border border-white/50 bg-gray-300/20 backdrop-blur-2xl sm:mx-4 sm:max-w-sm sm:rounded-2xl md:max-w-md">
+              <DialogHeader>
+                <DialogTitle className="text-base text-white/90 sm:text-lg md:text-xl">
+                  {isSignUp ? "Create an account" : "Welcome back"}
+                </DialogTitle>
+                <DialogDescription className="text-xs text-white/60 sm:text-sm md:text-base">
+                  {isSignUp
+                    ? "Enter your details to create a new account"
+                    : "Enter your credentials to login"}
+                </DialogDescription>
+              </DialogHeader>
+              <Form {...form}>
+                <form
+                  onSubmit={(e) => {
+                    console.log("Form submit event triggered", e);
+                    console.log("Form errors:", form.formState.errors);
+                    console.log("Form values:", form.getValues());
+                    console.log("Form isValid:", form.formState.isValid);
+                    form.handleSubmit(onSubmit)(e);
+                  }}
+                  className="space-y-3 sm:space-y-4"
+                >
+                  {isSignUp && (
+                    <FormField
+                      control={form.control}
+                      name="name"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-xs text-white/80 sm:text-sm md:text-base">
+                            Name
+                          </FormLabel>
+                          <FormControl>
+                            <Input
+                              {...field}
+                              className="h-8 border-white/25 bg-white/10 text-xs text-white placeholder:text-white/50 sm:h-9 sm:text-sm md:h-10 md:text-base"
+                              placeholder="John Doe"
+                            />
+                          </FormControl>
+                          <FormMessage className="text-xs text-red-400" />
+                        </FormItem>
+                      )}
+                    />
+                  )}
                   <FormField
                     control={form.control}
-                    name="name"
+                    name="email"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-xs sm:text-sm md:text-base text-white/80">
-                          Name
+                        <FormLabel className="text-xs text-white/80 sm:text-sm md:text-base">
+                          Email
                         </FormLabel>
                         <FormControl>
                           <Input
                             {...field}
-                            className="h-8 sm:h-9 md:h-10 border-white/25 bg-white/10 text-xs sm:text-sm md:text-base text-white placeholder:text-white/50"
-                            placeholder="John Doe"
+                            type="email"
+                            className="h-8 border-white/25 bg-white/10 text-xs text-white placeholder:text-white/50 sm:h-9 sm:text-sm md:h-10 md:text-base"
+                            placeholder="example@email.com"
                           />
                         </FormControl>
                         <FormMessage className="text-xs text-red-400" />
                       </FormItem>
                     )}
                   />
-                )}
-                <FormField
-                  control={form.control}
-                  name="email"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-xs sm:text-sm md:text-base text-white/80">
-                        Email
-                      </FormLabel>
-                      <FormControl>
-                        <Input
-                          {...field}
-                          type="email"
-                          className="h-8 sm:h-9 md:h-10 border-white/25 bg-white/10 text-xs sm:text-sm md:text-base text-white placeholder:text-white/50"
-                          placeholder="example@email.com"
-                        />
-                      </FormControl>
-                      <FormMessage className="text-xs text-red-400" />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="password"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-xs sm:text-sm md:text-base text-white/80">
-                        Password
-                      </FormLabel>
-                      <FormControl>
-                        <Input
-                          {...field}
-                          type="password"
-                          className="h-8 sm:h-9 md:h-10 border-white/25 bg-white/10 text-xs sm:text-sm md:text-base text-white placeholder:text-white/50"
-                        />
-                      </FormControl>
-                      <FormMessage className="text-xs text-red-400" />
-                    </FormItem>
-                  )}
-                />
-                <div className="flex flex-col gap-2">
-                  <Button
-                    type="submit"
-                    disabled={isLoading}
-                    className="h-8 sm:h-9 md:h-10 w-full rounded-xl border border-white/25 bg-[#f7a372] text-xs sm:text-sm md:text-base text-white hover:bg-[#fdd3b8]"
-                  >
-                    {isLoading ? (
-                      <Loader2 className="h-3 w-3 sm:h-4 sm:w-4 animate-spin" />
-                    ) : isSignUp ? (
-                      <>
-                        <UserPlus className="mr-1 h-3 w-3 sm:h-4 sm:w-4" />
-                        Sign Up
-                      </>
-                    ) : (
-                      <>
-                        <LogIn className="mr-1 h-3 w-3 sm:h-4 sm:w-4" />
-                        Login
-                      </>
+                  <FormField
+                    control={form.control}
+                    name="password"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-xs text-white/80 sm:text-sm md:text-base">
+                          Password
+                        </FormLabel>
+                        <FormControl>
+                          <Input
+                            {...field}
+                            type="password"
+                            className="h-8 border-white/25 bg-white/10 text-xs text-white placeholder:text-white/50 sm:h-9 sm:text-sm md:h-10 md:text-base"
+                          />
+                        </FormControl>
+                        <FormMessage className="text-xs text-red-400" />
+                      </FormItem>
                     )}
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    onClick={() => {
-                      setIsSignUp(!isSignUp);
-                      form.reset();
-                    }}
-                    className="text-xs sm:text-sm text-white/60 hover:text-white"
-                  >
-                    {isSignUp
-                      ? "Already have an account? Login"
-                      : "Don't have an account? Sign Up"}
-                  </Button>
-                </div>
-              </form>
-            </Form>
-          </DialogContent>
-        </Dialog>
+                  />
+                  <div className="flex flex-col gap-2">
+                    <Button
+                      type="submit"
+                      disabled={isLoading}
+                      onClick={() => {
+                        console.log(
+                          "Submit button clicked, form state:",
+                          form.formState,
+                        );
+                        console.log(
+                          "Form errors before submit:",
+                          form.formState.errors,
+                        );
+                        console.log("Current form values:", form.getValues());
+                        console.log("isSignUp mode:", isSignUp);
+                      }}
+                      className="h-8 w-full rounded-xl border border-white/25 bg-[#f7a372] text-xs text-white hover:bg-[#fdd3b8] sm:h-9 sm:text-sm md:h-10 md:text-base"
+                    >
+                      {isLoading ? (
+                        <Loader2 className="h-3 w-3 animate-spin sm:h-4 sm:w-4" />
+                      ) : isSignUp ? (
+                        <>
+                          <UserPlus className="mr-1 h-3 w-3 sm:h-4 sm:w-4" />
+                          Sign Up
+                        </>
+                      ) : (
+                        <>
+                          <LogIn className="mr-1 h-3 w-3 sm:h-4 sm:w-4" />
+                          Login
+                        </>
+                      )}
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      onClick={() => {
+                        setIsSignUp(!isSignUp);
+                        form.reset();
+                      }}
+                      className="text-xs text-white/60 hover:text-white sm:text-sm"
+                    >
+                      {isSignUp
+                        ? "Already have an account? Login"
+                        : "Don't have an account? Sign Up"}
+                    </Button>
+                  </div>
+                </form>
+              </Form>
+            </DialogContent>
+          </Dialog>
+        </div>
       )}
     </div>
   );
