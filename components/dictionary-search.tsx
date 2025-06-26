@@ -103,14 +103,18 @@ export default function DictionarySearch() {
   };
 
   return (
-    <div className="w-full space-y-4 sm:space-y-6 md:space-y-8">
+    <div className={`w-full transition-all duration-700 ease-in-out ${
+      hasSearched 
+        ? "flex flex-col lg:flex-row items-start lg:items-center gap-4 lg:gap-8" 
+        : "flex justify-center"
+    }`}>
       {/* Search Form */}
       <form
         onSubmit={handleSearch}
         className={`transition-all duration-700 ease-in-out ${
           hasSearched 
-            ? "w-full" 
-            : "mx-auto w-full max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg xl:max-w-2xl"
+            ? "w-full lg:w-1/2" 
+            : "w-full max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg xl:max-w-2xl"
         }`}
       >
         <div className="group relative">
@@ -136,7 +140,11 @@ export default function DictionarySearch() {
 
       {/* Results Section */}
       {hasSearched && (
-        <div className="w-full animate-fade-in">
+        <div className={`transition-all duration-700 ease-in-out ${
+          hasSearched 
+            ? "w-full lg:w-1/2 opacity-100 mt-4 lg:mt-0" 
+            : "w-0 opacity-0"
+        }`}>
           <DictionaryResult result={result} loading={loading} error={error} />
         </div>
       )}
