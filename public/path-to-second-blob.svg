@@ -1,11 +1,11 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="-200 -200 712.58 508.07">
   <defs>
     <filter id="blur" x="-50%" y="-50%" width="200%" height="200%">
-      <feGaussianBlur in="SourceGraphic" stdDeviation="25" />
+      <feGaussianBlur in="SourceGraphic" stdDeviation="15" />
     </filter>
   </defs>
   <g filter="url(#blur)">
     <path d="M0,39.38c0,16.4,71.39,68.69,156.29,68.69s156.29-52.29,156.29-68.69S241.19-.75,156.29.02,0,22.98,0,39.38Z"
-      fill="#0f1729" />
+      fill="#ffffff" fill-opacity="0.5" />
   </g>
 </svg>

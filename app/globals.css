@@ -68,14 +68,6 @@
   }
 }
 
-/*
-  The default border color has changed to `currentcolor` in Tailwind CSS v4,
-  so we've added these compatibility styles to make sure everything still
-  looks the same as it did with Tailwind CSS v3.
-
-  If we ever want to remove these styles, we need to add an explicit border
-  color utility to any element that depends on these defaults.
-*/
 @layer base {
   *,
   ::after,
@@ -91,36 +83,41 @@
 }
 
 @utility sparrow-gradient {
-  background:
-    radial-gradient(
-      circle at top,
-      rgba(0, 0, 0, 0) 0%,
-      rgba(245, 152, 144, 0.8) 35%,
-      rgba(255, 138, 128, 1) 60%,
-      rgba(255, 155, 145, 0.8) 80%,
-      rgba(0, 0, 0, 0) 100%
-    );
+  background: radial-gradient(
+    circle at top,
+    rgba(0, 0, 0, 0) 0%,
+    rgba(245, 152, 144, 0.8) 35%,
+    rgba(255, 138, 128, 1) 60%,
+    rgba(255, 155, 145, 0.8) 80%,
+    rgba(0, 0, 0, 0) 100%
+  );
+
+  overflow: hidden;
 
   position: relative;
   isolation: isolate;
 }
 .sparrow-gradient::after {
   content: "";
+  padding: 50px;
   position: absolute;
-  bottom: 0;
+  bottom: -30rem;
   left: 50%;
-  width: 300px;
-  height: 200px;
-  background: red;
-  mask: url('/path-to-blob.svg') no-repeat center / contain;
-  -webkit-mask: url('/path-to-blob.svg') no-repeat center / contain;
+  width: 3200px;
+  height: 2160px;
+  background: #0f1729;
+  /* Use mask-box-image for scaling, or use transform on a nested element for more control.
+     With plain CSS mask, you can scale the second SVG by adjusting its background-size: */
+  mask:
+    url("/path-to-blob.svg") no-repeat center / contain,
+    url("/path-to-second-blob.svg") no-repeat center 60% / 60% 60%;
+  -webkit-mask:
+    url("/path-to-blob.svg") no-repeat center / contain,
+    url("/path-to-second-blob.svg") no-repeat center 60% / 60% 60%;
   transform: translateX(-50%);
   opacity: 0.9;
   z-index: -1;
 }
-
-
-
 
 @utility light-gradient {
   /* Base radial gradient */
