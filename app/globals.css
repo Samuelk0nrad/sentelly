@@ -107,7 +107,7 @@
 
 @utility light-gradient {
   /* Base radial gradient */
-  background: radial-gradient(circle at top, #f0e9dd 0%, #fff 100%);
+  background: radial-gradient(circle at top, #e3d9c8 0%, #f0e9dd 100%);
   position: relative;
   isolation: isolate;
 }
