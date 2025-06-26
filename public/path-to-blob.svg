@@ -1,3 +1,13 @@
 <svg viewBox="0 0 200 100" xmlns="http://www.w3.org/2000/svg">
-  <path fill="white" d="M20,60 Q100,100 180,60 Q140,20 100,30 Q60,10 20,60Z" />
+  <defs>
+    <filter id="blur" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="15" />
+    </filter>
+  </defs>
+
+  <path
+    d="M20,60 Q100,100 180,60 Q140,20 100,30 Q60,10 20,60Z"
+    fill="red"
+    filter="url(#blur)"
+  />
 </svg>
