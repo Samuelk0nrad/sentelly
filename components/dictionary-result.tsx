@@ -3,11 +3,13 @@
 import { useRef, useState } from "react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { AlertCircle, Volume2 } from "lucide-react";
+import { AlertCircle, Volume2, Database, Sparkles } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 
 interface DictionaryResponse {
+  $id?: string;
   starting: string;
   word: string;
   phonetic: string;
@@ -15,6 +17,8 @@ interface DictionaryResponse {
   examples: string[];
   synonyms: string[];
   usage: string;
+  pronunciation_id?: string;
+  source?: "database" | "gemini";
 }
 
 interface DictionaryResultProps {
@@ -29,27 +33,18 @@ export default function DictionaryResult({
   error,
 }: DictionaryResultProps) {
   const [isPlaying, setIsPlaying] = useState(false);
-  const audioCache = useRef<Map<string, string>>(new Map());
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   const playAudio = async (word: string) => {
     try {
       setIsPlaying(true);
 
-      // Check if we have the audio URL cached
-      let audioUrl = audioCache.current.get(word);
+      // Fetch audio from our API (which handles caching)
+      const response = await fetch(`/api/tts?text=${encodeURIComponent(word)}`);
+      if (!response.ok) throw new Error("Failed to fetch audio");
 
-      if (!audioUrl) {
-        // Fetch new audio if not cached
-        const response = await fetch(
-          `/api/tts?text=${encodeURIComponent(word)}`,
-        );
-        if (!response.ok) throw new Error("Failed to fetch audio");
-
-        const audioBlob = await response.blob();
-        audioUrl = URL.createObjectURL(audioBlob);
-        audioCache.current.set(word, audioUrl);
-      }
+      const audioBlob = await response.blob();
+      const audioUrl = URL.createObjectURL(audioBlob);
 
       // Create and play audio
       if (!audioRef.current) {
@@ -61,6 +56,7 @@ export default function DictionaryResult({
 
       audioRef.current.onended = () => {
         setIsPlaying(false);
+        URL.revokeObjectURL(audioUrl); // Clean up
       };
     } catch (error) {
       console.error("Error playing audio:", error);

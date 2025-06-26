@@ -1,8 +1,9 @@
 import { GoogleGenAI, Type } from "@google/genai";
-
-// Simple in-memory cache
-const cache = new Map<string, { data: any; timestamp: number }>();
-const CACHE_DURATION = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
+import {
+  getWordFromDatabase,
+  saveWordToDatabase,
+  WordDocument,
+} from "@/lib/appwrite";
 
 const SYSTEM_PROMPT = `You are a dictionary API that provides detailed word definitions.
 CRITICAL: You must ONLY return a valid JSON object with no additional text, markdown, or formatting.
@@ -34,16 +35,10 @@ For example, for the word "developer":
   "usage": "The term 'developer' is commonly used in the technology industry to refer to individuals or teams responsible for building and maintaining software applications and websites."
 }
 `;
+
 const ai = new GoogleGenAI({ apiKey: process.env.GOOGLE_API_KEY! });
 
-async function getDefinitionFromGemini(word: string) {
-  // Check cache first
-  const cached = cache.get(word);
-  if (cached && Date.now() - cached.timestamp < CACHE_DURATION) {
-    console.log(`Cache hit for word: ${word}`);
-    return cached.data;
-  }
-
+async function getDefinitionFromGemini(word: string): Promise<WordDocument> {
   try {
     const prompt = `${SYSTEM_PROMPT}\n\nDefine the word: ${word}`;
 
@@ -98,11 +93,18 @@ async function getDefinitionFromGemini(word: string) {
 
     const data = JSON.parse(response.text || "{}");
 
-    // Store in cache
-    cache.set(word, { data, timestamp: Date.now() });
-    console.log(`Cached definition for word: ${word}`);
+    // Convert to WordDocument format
+    const wordDocument: WordDocument = {
+      word: data.word || word,
+      starting: data.starting,
+      phonetic: data.phonetic,
+      definition: data.definition,
+      examples: data.examples || [],
+      synonyms: data.synonyms || [],
+      usage: data.usage,
+    };
 
-    return data;
+    return wordDocument;
   } catch (error) {
     console.error("Gemini API error:", error);
     throw error;
@@ -121,8 +123,40 @@ export async function GET(request: Request) {
   }
 
   try {
+    // First, check if word exists in database
+    console.log(`Checking database for word: ${word}`);
+    const existingWord = await getWordFromDatabase(word);
+
+    if (existingWord) {
+      console.log(`Found word in database: ${word}`);
+      return Response.json({
+        ...existingWord,
+        source: "database",
+      });
+    }
+
+    // If not in database, get from Gemini and save
+    console.log(`Word not found in database, fetching from Gemini: ${word}`);
     const definition = await getDefinitionFromGemini(word);
-    return Response.json(definition);
+
+    // Save to database
+    const savedWord = await saveWordToDatabase(definition);
+
+    if (savedWord) {
+      console.log(`Saved word to database: ${word}`);
+      return Response.json({
+        ...savedWord,
+        source: "gemini",
+      });
+    } else {
+      console.log(
+        `Failed to save word to database, returning Gemini result: ${word}`,
+      );
+      return Response.json({
+        ...definition,
+        source: "gemini",
+      });
+    }
   } catch (error) {
     console.error("API error:", error);
     return Response.json(
