@@ -37,7 +37,7 @@ export default function DictionarySearch() {
       setHasSearched(false);
       return;
     }
-    
+
     setHasSearched(true);
     setLoading(true);
     setError(null);
@@ -79,7 +79,7 @@ export default function DictionarySearch() {
   // Handle form submission - only update URL parameter
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!searchTerm.trim()) {
       // Clear URL parameter when search is empty
       router.push("/", { scroll: false });
@@ -95,7 +95,7 @@ export default function DictionarySearch() {
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setSearchTerm(value);
-    
+
     // If input is cleared, clear the URL parameter
     if (!value.trim()) {
       router.push("/", { scroll: false });
@@ -103,17 +103,19 @@ export default function DictionarySearch() {
   };
 
   return (
-    <div className={`w-full transition-all duration-700 ease-in-out ${
-      hasSearched 
-        ? "flex flex-col lg:flex-row items-start lg:items-start gap-4 lg:gap-8 pt-4 lg:pt-8" 
-        : "flex items-center justify-center min-h-[60vh]"
-    }`}>
+    <div
+      className={`w-full transition-all duration-700 ease-in-out ${
+        hasSearched
+          ? "flex flex-col items-center gap-4 pt-4 lg:items-center lg:gap-8 lg:pt-8"
+          : "flex min-h-[60vh] items-center justify-center"
+      }`}
+    >
       {/* Search Form */}
       <form
         onSubmit={handleSearch}
         className={`transition-all duration-700 ease-in-out ${
-          hasSearched 
-            ? "w-full lg:w-1/2" 
+          hasSearched
+            ? "w-full lg:w-1/2"
             : "w-full max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg xl:max-w-2xl"
         }`}
       >
@@ -121,7 +123,7 @@ export default function DictionarySearch() {
           <Input
             type="text"
             placeholder="ENTER QUERY..."
-            className="h-10 sm:h-12 md:h-14 lg:h-16 rounded-xl sm:rounded-2xl border border-white/50 bg-gray-300/20 pr-10 sm:pr-12 md:pr-14 lg:pr-16 pl-3 sm:pl-4 md:pl-5 lg:pl-6 text-sm sm:text-base md:text-lg lg:text-xl text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.1)] backdrop-blur-2xl transition-all placeholder:text-white/50 hover:border-white/60 focus:border-white/70 focus-visible:ring-0 focus-visible:ring-offset-0"
+            className="h-10 rounded-xl border border-white/50 bg-gray-300/20 pr-10 pl-3 text-sm text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.1)] backdrop-blur-2xl transition-all placeholder:text-white/50 hover:border-white/60 focus:border-white/70 focus-visible:ring-0 focus-visible:ring-offset-0 sm:h-12 sm:rounded-2xl sm:pr-12 sm:pl-4 sm:text-base md:h-14 md:pr-14 md:pl-5 md:text-lg lg:h-16 lg:pr-16 lg:pl-6 lg:text-xl"
             value={searchTerm}
             onChange={handleInputChange}
             autoFocus
@@ -129,10 +131,10 @@ export default function DictionarySearch() {
           <Button
             type="submit"
             size="icon"
-            className="absolute top-1 sm:top-1.5 md:top-2 lg:top-2.5 right-1 sm:right-1.5 md:right-2 lg:right-2.5 h-8 w-8 sm:h-9 sm:w-9 md:h-10 md:w-10 lg:h-11 lg:w-11 rounded-lg sm:rounded-xl border border-white/25 bg-[#f7a372] shadow-none transition-all hover:border-white/35 hover:bg-[#fdd3b8] hover:shadow-[0_4px_16px_rgba(255,255,255,0.15),inset_0_1px_0_rgba(255,255,255,0.25)]"
+            className="absolute top-1 right-1 h-8 w-8 rounded-lg border border-white/25 bg-[#f7a372] shadow-none transition-all hover:border-white/35 hover:bg-[#fdd3b8] hover:shadow-[0_4px_16px_rgba(255,255,255,0.15),inset_0_1px_0_rgba(255,255,255,0.25)] sm:top-1.5 sm:right-1.5 sm:h-9 sm:w-9 sm:rounded-xl md:top-2 md:right-2 md:h-10 md:w-10 lg:top-2.5 lg:right-2.5 lg:h-11 lg:w-11"
             disabled={loading}
           >
-            <SearchIcon className="h-3 w-3 sm:h-4 sm:w-4 md:h-5 md:w-5 lg:h-6 lg:w-6 text-white/80 transition-all group-hover:text-white" />
+            <SearchIcon className="h-3 w-3 text-white/80 transition-all group-hover:text-white sm:h-4 sm:w-4 md:h-5 md:w-5 lg:h-6 lg:w-6" />
             <span className="sr-only">Search</span>
           </Button>
         </div>
@@ -140,11 +142,13 @@ export default function DictionarySearch() {
 
       {/* Results Section */}
       {hasSearched && (
-        <div className={`transition-all duration-700 ease-in-out ${
-          hasSearched 
-            ? "w-full lg:w-1/2 opacity-100 mt-4 lg:mt-0" 
-            : "w-0 opacity-0"
-        }`}>
+        <div
+          className={`transition-all duration-700 ease-in-out ${
+            hasSearched
+              ? "mt-4 w-full opacity-100 lg:mt-0 lg:w-1/2"
+              : "w-0 opacity-0"
+          }`}
+        >
           <DictionaryResult result={result} loading={loading} error={error} />
         </div>
       )}
