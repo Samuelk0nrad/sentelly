@@ -3,7 +3,7 @@ import {
   getWordFromDatabase,
   saveWordToDatabase,
   WordDocument,
-} from "@/lib/appwrite";
+} from "@/lib/server/appwrite";
 
 const SYSTEM_PROMPT = `You are a dictionary API that provides detailed word definitions.
 CRITICAL: You must ONLY return a valid JSON object with no additional text, markdown, or formatting.

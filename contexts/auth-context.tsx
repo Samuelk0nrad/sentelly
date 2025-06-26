@@ -7,7 +7,7 @@ import React, {
   useState,
   ReactNode,
 } from "react";
-import { account } from "@/lib/appwrite";
+import { account, ID } from "@/lib/client/appwrite";
 import { Models } from "appwrite";
 
 interface AuthContextType {
@@ -59,7 +59,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const login = async (email: string, password: string) => {
     try {
-      await account.createEmailSession(email, password);
+      await account.createEmailPasswordSession(email, password);
       await checkAuth();
       return { success: true };
     } catch (error: any) {
@@ -72,7 +72,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const register = async (email: string, password: string, name: string) => {
     try {
-      await account.create("unique()", email, password, name);
+      await account.create(ID.unique(), email, password, name);
       // After successful registration, automatically log in
       const loginResult = await login(email, password);
       return loginResult;

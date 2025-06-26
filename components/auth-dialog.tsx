@@ -24,7 +24,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
-import { login, register, logout, getCurrentUser } from "@/lib/appwrite";
+import { login, register, logout, getCurrentUser } from "@/lib/client/appwrite";
 
 const formSchema = z.object({
   email: z.string().email("Invalid email address"),
@@ -66,7 +66,7 @@ export function AuthDialog() {
         const { success, error } = await register(
           values.email,
           values.password,
-          values.name || ""
+          values.name || "",
         );
         if (success) {
           toast({
@@ -144,7 +144,7 @@ export function AuthDialog() {
     <div className="flex items-center gap-1 md:gap-2">
       {user ? (
         <>
-          <span className="text-xs md:text-sm text-white/80 hidden sm:inline">
+          <span className="hidden text-xs text-white/80 sm:inline md:text-sm">
             Hello, {user.name || user.email}
           </span>
           <Button
@@ -152,12 +152,12 @@ export function AuthDialog() {
             size="sm"
             onClick={handleLogout}
             disabled={isLoading}
-            className="rounded-full border-white/25 bg-white/10 text-white/80 hover:bg-white/20 hover:text-white text-xs md:text-sm px-2 md:px-3 h-8 md:h-9"
+            className="h-8 rounded-full border-white/25 bg-white/10 px-2 text-xs text-white/80 hover:bg-white/20 hover:text-white md:h-9 md:px-3 md:text-sm"
           >
             {isLoading ? (
-              <Loader2 className="h-3 w-3 md:h-4 md:w-4 animate-spin" />
+              <Loader2 className="h-3 w-3 animate-spin md:h-4 md:w-4" />
             ) : (
-              <LogOut className="mr-1 md:mr-2 h-3 w-3 md:h-4 md:w-4" />
+              <LogOut className="mr-1 h-3 w-3 md:mr-2 md:h-4 md:w-4" />
             )}
             <span className="hidden sm:inline">Logout</span>
             <span className="sm:hidden">Out</span>
@@ -169,18 +169,18 @@ export function AuthDialog() {
             <Button
               variant="outline"
               size="sm"
-              className="rounded-full border-white/25 bg-white/10 text-white/80 hover:bg-white/20 hover:text-white text-xs md:text-sm px-2 md:px-3 h-8 md:h-9"
+              className="h-8 rounded-full border-white/25 bg-white/10 px-2 text-xs text-white/80 hover:bg-white/20 hover:text-white md:h-9 md:px-3 md:text-sm"
             >
-              <LogIn className="mr-1 md:mr-2 h-3 w-3 md:h-4 md:w-4" />
+              <LogIn className="mr-1 h-3 w-3 md:mr-2 md:h-4 md:w-4" />
               Login
             </Button>
           </DialogTrigger>
-          <DialogContent className="rounded-2xl border border-white/50 bg-gray-300/20 backdrop-blur-2xl mx-4 max-w-sm md:max-w-md">
+          <DialogContent className="mx-4 max-w-sm rounded-2xl border border-white/50 bg-gray-300/20 backdrop-blur-2xl md:max-w-md">
             <DialogHeader>
-              <DialogTitle className="text-white/90 text-lg md:text-xl">
+              <DialogTitle className="text-lg text-white/90 md:text-xl">
                 {isSignUp ? "Create an account" : "Welcome back"}
               </DialogTitle>
-              <DialogDescription className="text-white/60 text-sm md:text-base">
+              <DialogDescription className="text-sm text-white/60 md:text-base">
                 {isSignUp
                   ? "Enter your details to create a new account"
                   : "Enter your credentials to login"}
@@ -197,15 +197,17 @@ export function AuthDialog() {
                     name="name"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-white/80 text-sm md:text-base">Name</FormLabel>
+                        <FormLabel className="text-sm text-white/80 md:text-base">
+                          Name
+                        </FormLabel>
                         <FormControl>
                           <Input
                             {...field}
-                            className="border-white/25 bg-white/10 text-white placeholder:text-white/50 text-sm md:text-base h-9 md:h-10"
+                            className="h-9 border-white/25 bg-white/10 text-sm text-white placeholder:text-white/50 md:h-10 md:text-base"
                             placeholder="John Doe"
                           />
                         </FormControl>
-                        <FormMessage className="text-red-400 text-xs md:text-sm" />
+                        <FormMessage className="text-xs text-red-400 md:text-sm" />
                       </FormItem>
                     )}
                   />
@@ -215,16 +217,18 @@ export function AuthDialog() {
                   name="email"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-white/80 text-sm md:text-base">Email</FormLabel>
+                      <FormLabel className="text-sm text-white/80 md:text-base">
+                        Email
+                      </FormLabel>
                       <FormControl>
                         <Input
                           {...field}
                           type="email"
-                          className="border-white/25 bg-white/10 text-white placeholder:text-white/50 text-sm md:text-base h-9 md:h-10"
+                          className="h-9 border-white/25 bg-white/10 text-sm text-white placeholder:text-white/50 md:h-10 md:text-base"
                           placeholder="example@email.com"
                         />
                       </FormControl>
-                      <FormMessage className="text-red-400 text-xs md:text-sm" />
+                      <FormMessage className="text-xs text-red-400 md:text-sm" />
                     </FormItem>
                   )}
                 />
@@ -233,15 +237,17 @@ export function AuthDialog() {
                   name="password"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-white/80 text-sm md:text-base">Password</FormLabel>
+                      <FormLabel className="text-sm text-white/80 md:text-base">
+                        Password
+                      </FormLabel>
                       <FormControl>
                         <Input
                           {...field}
                           type="password"
-                          className="border-white/25 bg-white/10 text-white placeholder:text-white/50 text-sm md:text-base h-9 md:h-10"
+                          className="h-9 border-white/25 bg-white/10 text-sm text-white placeholder:text-white/50 md:h-10 md:text-base"
                         />
                       </FormControl>
-                      <FormMessage className="text-red-400 text-xs md:text-sm" />
+                      <FormMessage className="text-xs text-red-400 md:text-sm" />
                     </FormItem>
                   )}
                 />
@@ -249,18 +255,18 @@ export function AuthDialog() {
                   <Button
                     type="submit"
                     disabled={isLoading}
-                    className="w-full rounded-xl border border-white/25 bg-[#f7a372] text-white hover:bg-[#fdd3b8] text-sm md:text-base h-9 md:h-10"
+                    className="h-9 w-full rounded-xl border border-white/25 bg-[#f7a372] text-sm text-white hover:bg-[#fdd3b8] md:h-10 md:text-base"
                   >
                     {isLoading ? (
-                      <Loader2 className="h-3 w-3 md:h-4 md:w-4 animate-spin" />
+                      <Loader2 className="h-3 w-3 animate-spin md:h-4 md:w-4" />
                     ) : isSignUp ? (
                       <>
-                        <UserPlus className="mr-1 md:mr-2 h-3 w-3 md:h-4 md:w-4" />
+                        <UserPlus className="mr-1 h-3 w-3 md:mr-2 md:h-4 md:w-4" />
                         Sign Up
                       </>
                     ) : (
                       <>
-                        <LogIn className="mr-1 md:mr-2 h-3 w-3 md:h-4 md:w-4" />
+                        <LogIn className="mr-1 h-3 w-3 md:mr-2 md:h-4 md:w-4" />
                         Login
                       </>
                     )}
@@ -272,7 +278,7 @@ export function AuthDialog() {
                       setIsSignUp(!isSignUp);
                       form.reset();
                     }}
-                    className="text-white/60 hover:text-white text-xs md:text-sm"
+                    className="text-xs text-white/60 hover:text-white md:text-sm"
                   >
                     {isSignUp
                       ? "Already have an account? Login"
