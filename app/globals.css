@@ -261,4 +261,19 @@
       transform: translateY(0);
     }
   }
+
+  /* Custom responsive breakpoints */
+  @screen xs {
+    /* 475px and up */
+  }
+}
+
+/* Custom responsive utilities */
+@media (min-width: 475px) {
+  .xs\:inline {
+    display: inline;
+  }
+  .xs\:hidden {
+    display: none;
+  }
 }

@@ -103,18 +103,21 @@ export default function DictionarySearch() {
   };
 
   return (
-    <div
-      className={`w-full transition-all duration-700 ease-in-out ${hasSearched ? "flex flex-col md:flex-row items-start md:items-center gap-4 md:gap-8" : "block"}`}
-    >
+    <div className="w-full space-y-4 sm:space-y-6 md:space-y-8">
+      {/* Search Form */}
       <form
         onSubmit={handleSearch}
-        className={`transition-all duration-700 ${hasSearched ? "w-full md:w-1/2" : "mx-auto w-full max-w-2xl"}`}
+        className={`transition-all duration-700 ease-in-out ${
+          hasSearched 
+            ? "w-full" 
+            : "mx-auto w-full max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg xl:max-w-2xl"
+        }`}
       >
         <div className="group relative">
           <Input
             type="text"
             placeholder="ENTER QUERY..."
-            className="h-12 md:h-14 rounded-2xl border border-white/50 bg-gray-300/20 pr-12 md:pr-14 pl-3 md:pl-4 text-base md:text-lg text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.1)] backdrop-blur-2xl transition-all placeholder:text-white/50 hover:border-white/60 focus:border-white/70 focus-visible:ring-0 focus-visible:ring-offset-0"
+            className="h-10 sm:h-12 md:h-14 lg:h-16 rounded-xl sm:rounded-2xl border border-white/50 bg-gray-300/20 pr-10 sm:pr-12 md:pr-14 lg:pr-16 pl-3 sm:pl-4 md:pl-5 lg:pl-6 text-sm sm:text-base md:text-lg lg:text-xl text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.1)] backdrop-blur-2xl transition-all placeholder:text-white/50 hover:border-white/60 focus:border-white/70 focus-visible:ring-0 focus-visible:ring-offset-0"
             value={searchTerm}
             onChange={handleInputChange}
             autoFocus
@@ -122,20 +125,21 @@ export default function DictionarySearch() {
           <Button
             type="submit"
             size="icon"
-            className="absolute top-1.5 md:top-2 right-1.5 md:right-2 h-9 w-9 md:h-10 md:w-10 rounded-xl border border-white/25 bg-[#f7a372] shadow-none transition-all hover:border-white/35 hover:bg-[#fdd3b8] hover:shadow-[0_4px_16px_rgba(255,255,255,0.15),inset_0_1px_0_rgba(255,255,255,0.25)]"
+            className="absolute top-1 sm:top-1.5 md:top-2 lg:top-2.5 right-1 sm:right-1.5 md:right-2 lg:right-2.5 h-8 w-8 sm:h-9 sm:w-9 md:h-10 md:w-10 lg:h-11 lg:w-11 rounded-lg sm:rounded-xl border border-white/25 bg-[#f7a372] shadow-none transition-all hover:border-white/35 hover:bg-[#fdd3b8] hover:shadow-[0_4px_16px_rgba(255,255,255,0.15),inset_0_1px_0_rgba(255,255,255,0.25)]"
             disabled={loading}
           >
-            <SearchIcon className="h-4 w-4 md:h-5 md:w-5 text-white/80 transition-all group-hover:text-white" />
+            <SearchIcon className="h-3 w-3 sm:h-4 sm:w-4 md:h-5 md:w-5 lg:h-6 lg:w-6 text-white/80 transition-all group-hover:text-white" />
             <span className="sr-only">Search</span>
           </Button>
         </div>
       </form>
 
-      <div
-        className={`transition-all duration-700 ${hasSearched ? "w-full md:w-1/2 opacity-100 mt-4 md:mt-0" : "w-0 opacity-0"}`}
-      >
-        <DictionaryResult result={result} loading={loading} error={error} />
-      </div>
+      {/* Results Section */}
+      {hasSearched && (
+        <div className="w-full animate-fade-in">
+          <DictionaryResult result={result} loading={loading} error={error} />
+        </div>
+      )}
     </div>
   );
 }

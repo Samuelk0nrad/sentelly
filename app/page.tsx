@@ -5,20 +5,36 @@ import { AuthDialog } from "@/components/auth-dialog";
 
 export default function Home() {
   return (
-    <main className="light-gradient">
-      <div className="sparrow-gradient flex h-screen w-full flex-col items-center justify-center p-4 md:p-8">
-        <div className="mx-auto flex h-full w-full max-w-[1200px] flex-col">
-          <header className="mb-4 md:mb-8 flex-1 text-center">
-            <h1 className="mt-4 md:mt-8 text-3xl md:text-4xl lg:text-5xl font-bold">Sentelly</h1>
+    <main className="light-gradient min-h-screen">
+      <div className="sparrow-gradient flex min-h-screen w-full flex-col p-2 sm:p-4 md:p-6 lg:p-8">
+        <div className="mx-auto flex h-full w-full max-w-[1400px] flex-col">
+          {/* Header with responsive navigation */}
+          <header className="mb-4 sm:mb-6 md:mb-8 lg:mb-12 flex items-center justify-between">
+            <div className="flex-1" />
+            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-white text-center">
+              Sentelly
+            </h1>
+            <div className="flex-1 flex justify-end items-center gap-1 sm:gap-2">
+              <ModeToggle />
+              <AuthDialog />
+            </div>
           </header>
 
-          <div className="px-2 md:px-0">
-            <Suspense fallback={<div>Loading...</div>}>
-              <DictionarySearch />
-            </Suspense>
+          {/* Main content area with responsive spacing */}
+          <div className="flex-1 flex flex-col justify-center px-1 sm:px-2 md:px-4 lg:px-6">
+            <div className="w-full max-w-6xl mx-auto">
+              <Suspense fallback={
+                <div className="flex items-center justify-center p-8">
+                  <div className="text-white/60 text-sm sm:text-base">Loading...</div>
+                </div>
+              }>
+                <DictionarySearch />
+              </Suspense>
+            </div>
           </div>
 
-          <div className="flex-1"></div>
+          {/* Footer spacer */}
+          <div className="h-4 sm:h-6 md:h-8 lg:h-12" />
         </div>
       </div>
     </main>
