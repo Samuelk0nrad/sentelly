@@ -37,6 +37,7 @@ export { client, ID };
 // Database and Storage IDs
 export const DATABASE_ID = appwriteDatabaseId || "default";
 export const COLLECTION_ID = appwriteCollectionId || "words";
+export const ACTIVITY_COLLECTION_ID = "activities";
 export const STORAGE_ID = appwriteStorageId || "pronunciation";
 
 // Word interface matching Appwrite structure
@@ -50,6 +51,31 @@ export interface WordDocument {
   synonyms?: string[];
   usage: string;
   pronunciation_id?: string;
+  $createdAt?: string;
+  $updatedAt?: string;
+}
+
+// Activity tracking interface
+export interface ActivityDocument {
+  $id?: string;
+  user_id?: string; // null for anonymous users
+  user_email?: string; // for easier identification
+  activity_type: "word_search" | "audio_generation" | "user_registration" | "user_login";
+  word_searched?: string;
+  response_source: "database" | "gemini" | "cache" | "error";
+  tokens_used?: number;
+  response_time_ms: number;
+  success: boolean;
+  error_message?: string;
+  user_agent?: string;
+  ip_address?: string;
+  session_id?: string;
+  metadata?: {
+    gemini_model?: string;
+    audio_duration_ms?: number;
+    cache_hit?: boolean;
+    [key: string]: any;
+  };
   $createdAt?: string;
   $updatedAt?: string;
 }
@@ -157,5 +183,127 @@ export const getAudioData = async (
       stack: error instanceof Error ? error.stack : undefined,
     });
     return null;
+  }
+};
+
+// Activity tracking functions
+export const logActivity = async (
+  activityData: Omit<ActivityDocument, "$id" | "$createdAt" | "$updatedAt">,
+): Promise<ActivityDocument | null> => {
+  try {
+    const document = await databases.createDocument(
+      DATABASE_ID,
+      ACTIVITY_COLLECTION_ID,
+      ID.unique(),
+      {
+        ...activityData,
+        word_searched: activityData.word_searched?.toLowerCase(),
+        metadata: activityData.metadata || {},
+      },
+    );
+    return document as unknown as ActivityDocument;
+  } catch (error) {
+    console.error("Error logging activity:", error);
+    return null;
+  }
+};
+
+// Get user activities (for analytics)
+export const getUserActivities = async (
+  userId?: string,
+  limit: number = 100,
+): Promise<ActivityDocument[]> => {
+  try {
+    const queries = [sdk.Query.orderDesc("$createdAt"), sdk.Query.limit(limit)];
+    
+    if (userId) {
+      queries.push(sdk.Query.equal("user_id", userId));
+    }
+
+    const response = await databases.listDocuments(
+      DATABASE_ID,
+      ACTIVITY_COLLECTION_ID,
+      queries,
+    );
+
+    return response.documents as unknown as ActivityDocument[];
+  } catch (error) {
+    console.error("Error fetching user activities:", error);
+    return [];
+  }
+};
+
+// Get activity analytics
+export const getActivityAnalytics = async (
+  timeframe: "day" | "week" | "month" = "day",
+): Promise<{
+  totalSearches: number;
+  uniqueWords: number;
+  totalTokensUsed: number;
+  averageResponseTime: number;
+  successRate: number;
+  sourceBreakdown: { database: number; gemini: number; error: number };
+}> => {
+  try {
+    const now = new Date();
+    let startDate = new Date();
+    
+    switch (timeframe) {
+      case "day":
+        startDate.setDate(now.getDate() - 1);
+        break;
+      case "week":
+        startDate.setDate(now.getDate() - 7);
+        break;
+      case "month":
+        startDate.setMonth(now.getMonth() - 1);
+        break;
+    }
+
+    const response = await databases.listDocuments(
+      DATABASE_ID,
+      ACTIVITY_COLLECTION_ID,
+      [
+        sdk.Query.equal("activity_type", "word_search"),
+        sdk.Query.greaterThanEqual("$createdAt", startDate.toISOString()),
+        sdk.Query.limit(10000), // Adjust based on your needs
+      ],
+    );
+
+    const activities = response.documents as unknown as ActivityDocument[];
+    
+    const totalSearches = activities.length;
+    const uniqueWords = new Set(activities.map(a => a.word_searched).filter(Boolean)).size;
+    const totalTokensUsed = activities.reduce((sum, a) => sum + (a.tokens_used || 0), 0);
+    const averageResponseTime = activities.reduce((sum, a) => sum + a.response_time_ms, 0) / totalSearches || 0;
+    const successfulSearches = activities.filter(a => a.success).length;
+    const successRate = totalSearches > 0 ? (successfulSearches / totalSearches) * 100 : 0;
+    
+    const sourceBreakdown = activities.reduce(
+      (acc, a) => {
+        acc[a.response_source as keyof typeof acc] = (acc[a.response_source as keyof typeof acc] || 0) + 1;
+        return acc;
+      },
+      { database: 0, gemini: 0, error: 0 } as { database: number; gemini: number; error: number }
+    );
+
+    return {
+      totalSearches,
+      uniqueWords,
+      totalTokensUsed,
+      averageResponseTime: Math.round(averageResponseTime),
+      successRate: Math.round(successRate * 100) / 100,
+      sourceBreakdown,
+    };
+  } catch (error) {
+    console.error("Error fetching activity analytics:", error);
+    return {
+      totalSearches: 0,
+      uniqueWords: 0,
+      totalTokensUsed: 0,
+      averageResponseTime: 0,
+      successRate: 0,
+      sourceBreakdown: { database: 0, gemini: 0, error: 0 },
+    };
   }
 };

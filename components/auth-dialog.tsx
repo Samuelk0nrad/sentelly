@@ -24,6 +24,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { login, register, logout, getCurrentUser } from "@/lib/client/appwrite";
+import { trackActivity, PerformanceTracker } from "@/lib/utils/activity-tracker";
 
 const formSchema = z.object({
   email: z.string().email("Invalid email address"),
@@ -74,7 +75,9 @@ export function AuthDialog() {
       return;
     }
 
+    const performanceTracker = new PerformanceTracker();
     setIsLoading(true);
+    
     try {
       if (isSignUp) {
         const { success, error } = await register(
@@ -82,6 +85,8 @@ export function AuthDialog() {
           values.password,
           values.name || "",
         );
+        const responseTime = performanceTracker.end();
+        
         if (success) {
           toast({
             title: "Account created successfully",
@@ -90,16 +95,40 @@ export function AuthDialog() {
           setIsOpen(false);
           await checkCurrentUser();
           form.reset();
+
+          // Track successful registration
+          await trackActivity({
+            user_email: values.email,
+            activity_type: "user_registration",
+            response_source: "database",
+            response_time_ms: responseTime,
+            success: true,
+            metadata: {
+              registration_method: "email_password",
+            },
+          });
         } else {
           toast({
             variant: "destructive",
             title: "Error creating account",
             description: error?.message ?? "",
           });
+
+          // Track failed registration
+          await trackActivity({
+            user_email: values.email,
+            activity_type: "user_registration",
+            response_source: "error",
+            response_time_ms: responseTime,
+            success: false,
+            error_message: error?.message ?? "Registration failed",
+          });
         }
       } else {
         console.log("Attempting login with:", values.email);
         const { success, error } = await login(values.email, values.password);
+        const responseTime = performanceTracker.end();
+        
         console.log("Login result:", { success, error });
         if (success) {
           toast({
@@ -109,19 +138,56 @@ export function AuthDialog() {
           setIsOpen(false);
           await checkCurrentUser();
           form.reset();
+
+          // Track successful login
+          await trackActivity({
+            user_email: values.email,
+            activity_type: "user_login",
+            response_source: "database",
+            response_time_ms: responseTime,
+            success: true,
+            metadata: {
+              login_method: "email_password",
+            },
+          });
         } else {
           toast({
             variant: "destructive",
             title: "Error logging in",
             description: error?.message ?? "",
           });
+
+          // Track failed login
+          await trackActivity({
+            user_email: values.email,
+            activity_type: "user_login",
+            response_source: "error",
+            response_time_ms: responseTime,
+            success: false,
+            error_message: error?.message ?? "Login failed",
+          });
         }
       }
     } catch (error: any) {
+      const responseTime = performanceTracker.end();
+      
       toast({
         variant: "destructive",
         title: "Error",
         description: error?.message ?? "An unexpected error occurred",
+      });
+
+      // Track unexpected error
+      await trackActivity({
+        user_email: values.email,
+        activity_type: isSignUp ? "user_registration" : "user_login",
+        response_source: "error",
+        response_time_ms: responseTime,
+        success: false,
+        error_message: error?.message ?? "Unexpected error",
+        metadata: {
+          error_type: "unexpected_error",
+        },
       });
     } finally {
       setIsLoading(false);
@@ -129,15 +195,32 @@ export function AuthDialog() {
   };
 
   const handleLogout = async () => {
+    const performanceTracker = new PerformanceTracker();
     setIsLoading(true);
+    
     try {
       const { success, error } = await logout();
+      const responseTime = performanceTracker.end();
+      
       if (success) {
         toast({
           title: "Logged out successfully",
           description: "See you soon!",
         });
         setUser(null);
+
+        // Track successful logout
+        await trackActivity({
+          user_id: user?.id,
+          user_email: user?.email,
+          activity_type: "user_login", // Using login type for logout as well
+          response_source: "database",
+          response_time_ms: responseTime,
+          success: true,
+          metadata: {
+            action: "logout",
+          },
+        });
       } else {
         toast({
           variant: "destructive",

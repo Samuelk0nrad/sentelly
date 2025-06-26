@@ -5,6 +5,7 @@ import {
   saveAudioToStorage,
   getAudioData,
 } from "@/lib/server/appwrite";
+import { trackActivity, PerformanceTracker } from "@/lib/utils/activity-tracker";
 
 async function getAudioFromElevenLabs(text: string): Promise<ArrayBuffer> {
   const VOICE_ID = "21m00Tcm4TlvDq8ikWAM"; // Default voice ID (Rachel)
@@ -41,10 +42,27 @@ async function getAudioFromElevenLabs(text: string): Promise<ArrayBuffer> {
 }
 
 export async function GET(request: Request) {
+  const performanceTracker = new PerformanceTracker();
   const { searchParams } = new URL(request.url);
   const text = searchParams.get("text");
+  
+  // Extract user info
+  const userId = searchParams.get("user_id") || null;
+  const userEmail = searchParams.get("user_email") || null;
 
   if (!text) {
+    const responseTime = performanceTracker.end();
+    
+    await trackActivity({
+      user_id: userId,
+      user_email: userEmail,
+      activity_type: "audio_generation",
+      response_source: "error",
+      response_time_ms: responseTime,
+      success: false,
+      error_message: "Text parameter is required",
+    });
+
     return NextResponse.json(
       { error: "Text parameter is required" },
       { status: 400 },
@@ -60,6 +78,23 @@ export async function GET(request: Request) {
         const audioData = await getAudioData(existingWord.pronunciation_id);
 
         if (audioData) {
+          const responseTime = performanceTracker.end();
+          
+          await trackActivity({
+            user_id: userId,
+            user_email: userEmail,
+            activity_type: "audio_generation",
+            word_searched: text,
+            response_source: "database",
+            response_time_ms: responseTime,
+            success: true,
+            metadata: {
+              cache_hit: true,
+              audio_file_id: existingWord.pronunciation_id,
+              word_id: existingWord.$id,
+            },
+          });
+
           return new NextResponse(audioData, {
             headers: {
               "Content-Type": "audio/mpeg",
@@ -78,6 +113,8 @@ export async function GET(request: Request) {
 
     // Generate new audio from ElevenLabs
     const audioBuffer = await getAudioFromElevenLabs(text);
+    const responseTime = performanceTracker.end();
+    
     // Save to storage if we have a word document
     if (existingWord) {
       try {
@@ -110,6 +147,25 @@ export async function GET(request: Request) {
       console.warn(`⚠️ No existing word document found, skipping storage save`);
     }
 
+    // Track successful audio generation
+    await trackActivity({
+      user_id: userId,
+      user_email: userEmail,
+      activity_type: "audio_generation",
+      word_searched: text,
+      response_source: "gemini", // ElevenLabs in this case, but using gemini as external API
+      response_time_ms: responseTime,
+      success: true,
+      metadata: {
+        cache_hit: false,
+        audio_provider: "elevenlabs",
+        voice_id: "21m00Tcm4TlvDq8ikWAM",
+        audio_size_bytes: audioBuffer.byteLength,
+        saved_to_storage: !!existingWord,
+        word_id: existingWord?.$id,
+      },
+    });
+
     return new NextResponse(audioBuffer, {
       headers: {
         "Content-Type": "audio/mpeg",
@@ -123,6 +179,23 @@ export async function GET(request: Request) {
       stack: error instanceof Error ? error.stack : undefined,
       text: text,
     });
+    
+    const responseTime = performanceTracker.end();
+    
+    await trackActivity({
+      user_id: userId,
+      user_email: userEmail,
+      activity_type: "audio_generation",
+      word_searched: text,
+      response_source: "error",
+      response_time_ms: responseTime,
+      success: false,
+      error_message: error instanceof Error ? error.message : "Unknown error",
+      metadata: {
+        error_type: error instanceof Error ? error.constructor.name : "UnknownError",
+      },
+    });
+
     return NextResponse.json(
       { error: "Failed to generate speech" },
       { status: 500 },

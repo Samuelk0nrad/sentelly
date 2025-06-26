@@ -6,6 +6,8 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { SearchIcon } from "lucide-react";
 import DictionaryResult from "@/components/dictionary-result";
+import { trackActivity, PerformanceTracker } from "@/lib/utils/activity-tracker";
+import { getCurrentUser } from "@/lib/client/appwrite";
 
 interface DictionaryResponse {
   $id?: string;
@@ -28,6 +30,18 @@ export default function DictionarySearch() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [hasSearched, setHasSearched] = useState(false);
+  const [currentUser, setCurrentUser] = useState<any>(null);
+
+  // Get current user for activity tracking
+  useEffect(() => {
+    const fetchUser = async () => {
+      const { success, data } = await getCurrentUser();
+      if (success) {
+        setCurrentUser(data);
+      }
+    };
+    fetchUser();
+  }, []);
 
   // Perform the actual API call
   const performApiCall = async (word: string) => {
@@ -42,20 +56,65 @@ export default function DictionarySearch() {
     setLoading(true);
     setError(null);
 
+    const performanceTracker = new PerformanceTracker();
+
     try {
-      const response = await fetch(
-        `/api/dictionary?word=${encodeURIComponent(word)}`,
-      );
+      // Build URL with user info for server-side tracking
+      const url = new URL(`/api/dictionary`, window.location.origin);
+      url.searchParams.set("word", word);
+      if (currentUser?.id) {
+        url.searchParams.set("user_id", currentUser.id);
+      }
+      if (currentUser?.email) {
+        url.searchParams.set("user_email", currentUser.email);
+      }
+
+      const response = await fetch(url.toString());
+      const responseTime = performanceTracker.end();
+
       if (!response.ok) {
         throw new Error("Failed to fetch definition");
       }
+      
       const data = await response.json();
       setResult(data);
+
+      // Client-side activity tracking (backup/additional tracking)
+      await trackActivity({
+        user_id: currentUser?.id,
+        user_email: currentUser?.email,
+        activity_type: "word_search",
+        word_searched: word,
+        response_source: data.source || "unknown",
+        response_time_ms: responseTime,
+        success: true,
+        metadata: {
+          client_side_tracking: true,
+          result_id: data.$id,
+        },
+      });
+
     } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "An unexpected error occurred",
-      );
+      const responseTime = performanceTracker.end();
+      const errorMessage = err instanceof Error ? err.message : "An unexpected error occurred";
+      
+      setError(errorMessage);
       setResult(null);
+
+      // Track failed search
+      await trackActivity({
+        user_id: currentUser?.id,
+        user_email: currentUser?.email,
+        activity_type: "word_search",
+        word_searched: word,
+        response_source: "error",
+        response_time_ms: responseTime,
+        success: false,
+        error_message: errorMessage,
+        metadata: {
+          client_side_tracking: true,
+        },
+      });
     } finally {
       setLoading(false);
     }
@@ -74,7 +133,7 @@ export default function DictionarySearch() {
       setError(null);
       setHasSearched(false);
     }
-  }, [searchParams]);
+  }, [searchParams, currentUser]); // Include currentUser to re-trigger when user logs in
 
   // Handle form submission - only update URL parameter
   const handleSearch = async (e: React.FormEvent) => {
@@ -149,7 +208,12 @@ export default function DictionarySearch() {
               : "w-0 opacity-0"
           }`}
         >
-          <DictionaryResult result={result} loading={loading} error={error} />
+          <DictionaryResult 
+            result={result} 
+            loading={loading} 
+            error={error}
+            currentUser={currentUser}
+          />
         </div>
       )}
     </div>
