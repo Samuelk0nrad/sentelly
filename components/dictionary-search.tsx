@@ -7,6 +7,7 @@ import { SearchIcon } from "lucide-react";
 import DictionaryResult from "@/components/dictionary-result";
 
 interface DictionaryResponse {
+  $id?: string;
   starting: string;
   word: string;
   phonetic: string;
@@ -14,6 +15,8 @@ interface DictionaryResponse {
   examples: string[];
   synonyms: string[];
   usage: string;
+  pronunciation_id?: string;
+  source?: "database" | "gemini";
 }
 
 export default function DictionarySearch() {

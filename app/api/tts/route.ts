@@ -1,16 +1,12 @@
 import { NextResponse } from "next/server";
+import { 
+  getWordFromDatabase, 
+  updateWordPronunciation, 
+  saveAudioToStorage,
+  downloadAudioFromStorage 
+} from "@/lib/appwrite";
 
-// Simple in-memory cache
-const cache = new Map<string, { audio: ArrayBuffer; timestamp: number }>();
-const CACHE_DURATION = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
-
-async function getAudioFromElevenLabs(text: string) {
-  const cached = cache.get(text);
-  if (cached && Date.now() - cached.timestamp < CACHE_DURATION) {
-    console.log(`Cache hit for text: ${text}`);
-    return cached.audio;
-  }
-
+async function getAudioFromElevenLabs(text: string): Promise<ArrayBuffer> {
   const VOICE_ID = "21m00Tcm4TlvDq8ikWAM"; // Default voice ID (Rachel)
   const API_KEY = process.env.ELEVENLABS_API_KEY;
 
@@ -41,13 +37,7 @@ async function getAudioFromElevenLabs(text: string) {
     throw new Error(`ElevenLabs API error: ${response.statusText}`);
   }
 
-  const audioArrayBuffer = await response.arrayBuffer();
-  
-  // Store in cache
-  cache.set(text, { audio: audioArrayBuffer, timestamp: Date.now() });
-  console.log(`Cached audio for text: ${text}`);
-  
-  return audioArrayBuffer;
+  return await response.arrayBuffer();
 }
 
 export async function GET(request: Request) {
@@ -62,7 +52,50 @@ export async function GET(request: Request) {
   }
 
   try {
+    // Check if word exists in database and has pronunciation
+    console.log(`Checking for existing pronunciation: ${text}`);
+    const existingWord = await getWordFromDatabase(text);
+    
+    if (existingWord?.pronunciation_id) {
+      console.log(`Found existing pronunciation in storage: ${existingWord.pronunciation_id}`);
+      try {
+        const audioBlob = await downloadAudioFromStorage(existingWord.pronunciation_id);
+        if (audioBlob) {
+          const audioBuffer = await audioBlob.arrayBuffer();
+          return new NextResponse(audioBuffer, {
+            headers: {
+              "Content-Type": "audio/mpeg",
+              "Cache-Control": "public, max-age=86400",
+            },
+          });
+        }
+      } catch (storageError) {
+        console.error("Error downloading from storage, falling back to ElevenLabs:", storageError);
+      }
+    }
+
+    // Generate new audio from ElevenLabs
+    console.log(`Generating new audio from ElevenLabs: ${text}`);
     const audioBuffer = await getAudioFromElevenLabs(text);
+    
+    // Save to storage if we have a word document
+    if (existingWord) {
+      try {
+        const audioBlob = new Blob([audioBuffer], { type: 'audio/mpeg' });
+        const fileName = `${text.toLowerCase().replace(/[^a-z0-9]/g, '_')}_${Date.now()}.mp3`;
+        
+        console.log(`Saving audio to storage: ${fileName}`);
+        const pronunciationId = await saveAudioToStorage(audioBlob, fileName);
+        
+        if (pronunciationId && existingWord.$id) {
+          console.log(`Updating word with pronunciation ID: ${pronunciationId}`);
+          await updateWordPronunciation(existingWord.$id, pronunciationId);
+        }
+      } catch (storageError) {
+        console.error("Error saving to storage:", storageError);
+        // Continue anyway, return the audio
+      }
+    }
     
     return new NextResponse(audioBuffer, {
       headers: {
