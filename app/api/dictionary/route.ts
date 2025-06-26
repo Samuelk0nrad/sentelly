@@ -8,7 +8,7 @@ const SYSTEM_PROMPT = `You are a dictionary API that provides detailed word defi
 CRITICAL: You must ONLY return a valid JSON object with no additional text, markdown, or formatting.
 The response must be a single JSON object in this exact format:
 {
-  "starting": "the appropriate article (A, An, The) or determiner that should start the definition sentence",
+  "starting": "the appropriate determiner that should start the definition sentence",
   "word": "the word being defined",
   "phonetic": "phonetic pronunciation",
   "definition": "a single sentence definition that flows naturally after the starting word and the word itself",
@@ -97,11 +97,11 @@ async function getDefinitionFromGemini(word: string) {
     });
 
     const data = JSON.parse(response.text || "{}");
-    
+
     // Store in cache
     cache.set(word, { data, timestamp: Date.now() });
     console.log(`Cached definition for word: ${word}`);
-    
+
     return data;
   } catch (error) {
     console.error("Gemini API error:", error);
@@ -116,7 +116,7 @@ export async function GET(request: Request) {
   if (!word) {
     return Response.json(
       { error: "Word parameter is required" },
-      { status: 400 }
+      { status: 400 },
     );
   }
 
@@ -127,7 +127,7 @@ export async function GET(request: Request) {
     console.error("API error:", error);
     return Response.json(
       { error: "Failed to get definition" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
