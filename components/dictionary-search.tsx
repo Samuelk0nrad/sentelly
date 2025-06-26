@@ -29,22 +29,12 @@ export default function DictionarySearch() {
   const [error, setError] = useState<string | null>(null);
   const [hasSearched, setHasSearched] = useState(false);
 
-  // Load word from URL parameter on component mount
-  useEffect(() => {
-    const wordFromUrl = searchParams.get("word");
-    if (wordFromUrl) {
-      setSearchTerm(wordFromUrl);
-      performSearch(wordFromUrl);
-    }
-  }, [searchParams]);
-
-  const performSearch = async (word: string) => {
+  // Perform the actual API call
+  const performApiCall = async (word: string) => {
     if (!word.trim()) {
       setResult(null);
       setError(null);
       setHasSearched(false);
-      // Clear URL parameter when search is empty
-      router.push("/", { scroll: false });
       return;
     }
     
@@ -61,11 +51,6 @@ export default function DictionarySearch() {
       }
       const data = await response.json();
       setResult(data);
-      
-      // Update URL with the searched word
-      const params = new URLSearchParams();
-      params.set("word", word.trim());
-      router.push(`/?${params.toString()}`, { scroll: false });
     } catch (err) {
       setError(
         err instanceof Error ? err.message : "An unexpected error occurred",
@@ -76,20 +61,43 @@ export default function DictionarySearch() {
     }
   };
 
+  // Watch for URL parameter changes and trigger API call
+  useEffect(() => {
+    const wordFromUrl = searchParams.get("word");
+    if (wordFromUrl) {
+      setSearchTerm(wordFromUrl);
+      performApiCall(wordFromUrl);
+    } else {
+      // If no word parameter, reset everything
+      setSearchTerm("");
+      setResult(null);
+      setError(null);
+      setHasSearched(false);
+    }
+  }, [searchParams]);
+
+  // Handle form submission - only update URL parameter
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
-    await performSearch(searchTerm);
+    
+    if (!searchTerm.trim()) {
+      // Clear URL parameter when search is empty
+      router.push("/", { scroll: false });
+      return;
+    }
+
+    // Only update URL parameter - the useEffect will handle the API call
+    const params = new URLSearchParams();
+    params.set("word", searchTerm.trim());
+    router.push(`/?${params.toString()}`, { scroll: false });
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setSearchTerm(value);
     
-    // If input is cleared, clear the URL parameter and reset state
+    // If input is cleared, clear the URL parameter
     if (!value.trim()) {
-      setResult(null);
-      setError(null);
-      setHasSearched(false);
       router.push("/", { scroll: false });
     }
   };
