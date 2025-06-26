@@ -8,6 +8,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 
 interface DictionaryResponse {
+  starting: string;
   word: string;
   phonetic: string;
   definition: string;
@@ -110,28 +111,34 @@ export default function DictionaryResult({
     <Card className="animate-fade-in w-full overflow-hidden rounded-2xl border border-white/50 bg-gray-300/20 backdrop-blur-2xl">
       <CardHeader className="relative backdrop-blur-sm p-4 md:p-6">
         <div className="relative z-10">
-          <p className="text-sm md:text-md font-mono text-base md:text-lg font-bold text-white/90 lg:text-xl">
-            <strong className="text-xl md:text-2xl lg:text-4xl font-extrabold text-white block md:inline">
-              {result.word}
-            </strong>
-            {result.phonetic && (
-              <span className="text-sm md:text-md ml-0 md:ml-2 font-medium text-white/60 block md:inline mt-1 md:mt-0">
-                ({result.phonetic})
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="ml-1 h-5 w-5 md:h-6 md:w-6 rounded-full border border-white/25 bg-white/10 p-1 hover:bg-white/20"
-                  onClick={() => playAudio(result.word)}
-                  disabled={isPlaying}
-                >
-                  <Volume2 className="h-2.5 w-2.5 md:h-3 md:w-3 text-white/80" />
-                  <span className="sr-only">Play pronunciation</span>
-                </Button>
-              </span>
-            )}
-            <span className="block mt-2 md:mt-0 md:inline text-sm md:text-base lg:text-lg font-normal">
-              {result.definition}
-            </span>
+          <div className="mb-3 md:mb-4">
+            <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-3 mb-2">
+              <h2 className="text-2xl md:text-3xl lg:text-4xl font-extrabold text-white">
+                {result.word}
+              </h2>
+              {result.phonetic && (
+                <div className="flex items-center gap-2">
+                  <span className="text-sm md:text-base font-medium text-white/60">
+                    {result.phonetic}
+                  </span>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-6 w-6 md:h-7 md:w-7 rounded-full border border-white/25 bg-white/10 p-1 hover:bg-white/20"
+                    onClick={() => playAudio(result.word)}
+                    disabled={isPlaying}
+                  >
+                    <Volume2 className="h-3 w-3 md:h-3.5 md:w-3.5 text-white/80" />
+                    <span className="sr-only">Play pronunciation</span>
+                  </Button>
+                </div>
+              )}
+            </div>
+          </div>
+          <p className="text-base md:text-lg lg:text-xl font-medium text-white/90 leading-relaxed">
+            <span className="text-white/70">{result.starting}</span>{" "}
+            <span className="font-semibold text-white">{result.word}</span>{" "}
+            <span className="text-white/90">{result.definition}</span>
           </p>
         </div>
       </CardHeader>

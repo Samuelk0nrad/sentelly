@@ -8,17 +8,21 @@ const SYSTEM_PROMPT = `You are a dictionary API that provides detailed word defi
 CRITICAL: You must ONLY return a valid JSON object with no additional text, markdown, or formatting.
 The response must be a single JSON object in this exact format:
 {
+  "starting": "the appropriate article (A, An, The) or determiner that should start the definition sentence",
   "word": "the word being defined",
   "phonetic": "phonetic pronunciation",
-  "definition": "a single sentence definition formulated so it starts with the word and its phonetic but do not include the word itself and the phonetic",
+  "definition": "a single sentence definition that flows naturally after the starting word and the word itself",
   "examples": ["example sentences", "using the word"],
   "synonyms": ["list", "of", "synonyms"],
   "usage": "description of how the word is typically used"
 }
 Do not include any explanations, notes, or additional text before or after the JSON.
 
+The "starting" field should contain the appropriate article or determiner (like "A", "An", "The") that makes the sentence flow naturally when combined as: "[starting] [word] [definition]"
+
 For example, for the word "developer":
 {
+  "starting": "A",
   "word": "developer",
   "phonetic": "/dɪˈvel.ə.pər/",
   "definition": "is a person or company that creates software or websites.",
@@ -51,6 +55,9 @@ async function getDefinitionFromGemini(word: string) {
         responseSchema: {
           type: Type.OBJECT,
           properties: {
+            starting: {
+              type: Type.STRING,
+            },
             word: {
               type: Type.STRING,
             },
@@ -77,6 +84,7 @@ async function getDefinitionFromGemini(word: string) {
             },
           },
           propertyOrdering: [
+            "starting",
             "word",
             "phonetic",
             "definition",

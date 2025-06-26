@@ -7,6 +7,7 @@ import { SearchIcon } from "lucide-react";
 import DictionaryResult from "@/components/dictionary-result";
 
 interface DictionaryResponse {
+  starting: string;
   word: string;
   phonetic: string;
   definition: string;
