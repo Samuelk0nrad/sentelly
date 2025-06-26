@@ -20,8 +20,8 @@ export default function Home() {
             </div>
           </header>
 
-          {/* Main content area with responsive spacing */}
-          <div className="flex-1 flex flex-col justify-center px-1 sm:px-2 md:px-4 lg:px-6">
+          {/* Main content area - this will handle the vertical centering */}
+          <div className="flex-1 flex flex-col">
             <div className="w-full max-w-6xl mx-auto">
               <Suspense fallback={
                 <div className="flex items-center justify-center p-8">

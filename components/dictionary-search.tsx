@@ -105,8 +105,8 @@ export default function DictionarySearch() {
   return (
     <div className={`w-full transition-all duration-700 ease-in-out ${
       hasSearched 
-        ? "flex flex-col lg:flex-row items-start lg:items-center gap-4 lg:gap-8" 
-        : "flex justify-center"
+        ? "flex flex-col lg:flex-row items-start lg:items-start gap-4 lg:gap-8 pt-4 lg:pt-8" 
+        : "flex items-center justify-center min-h-[60vh]"
     }`}>
       {/* Search Form */}
       <form
