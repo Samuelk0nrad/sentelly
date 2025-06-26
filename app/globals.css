@@ -93,13 +93,6 @@
 @utility sparrow-gradient {
   background:
     radial-gradient(
-      ellipse at bottom center,
-      rgba(255, 0, 0, 1) 0%,
-      rgba(255, 0, 0, 0.9) 30%,
-      rgba(255, 0, 0, 0.6) 50%,
-      rgba(255, 0, 0, 0.0) 70%
-    ),
-    radial-gradient(
       circle at top,
       rgba(0, 0, 0, 0) 0%,
       rgba(245, 152, 144, 0.8) 35%,
@@ -111,6 +104,25 @@
   position: relative;
   isolation: isolate;
 }
+
+.sparrow-gradient::after {
+  content: "";
+  position: absolute;
+  bottom: 10%;
+  left: 50%;
+  width: 300px;
+  height: 150px;
+  background: radial-gradient(
+    closest-side,
+    rgba(255, 0, 0, 1) 0%,
+    rgba(255, 0, 0, 0.6) 60%,
+    rgba(255, 0, 0, 0) 100%
+  );
+  transform: translateX(-50%) scaleX(1.5) rotate(-10deg);
+  opacity: 0.8;
+  z-index: -1;
+}
+
 
 
 @utility light-gradient {
