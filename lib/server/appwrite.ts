@@ -120,35 +120,12 @@ export const saveAudioToStorage = async (
   fileName: string,
 ): Promise<string | null> => {
   try {
-    console.log(`🔍 Appwrite: Starting audio save process:`, {
-      fileName: fileName,
-      blobSize: audioBlob.size,
-      blobType: audioBlob.type,
-      storageId: STORAGE_ID
-    });
-
     const arrayBuffer = await audioBlob.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
 
-    console.log(`🔄 Appwrite: Converted blob to buffer:`, {
-      bufferSize: buffer.length,
-      fileName: fileName
-    });
-
     // ✅ Wrap buffer in Appwrite-compatible InputFile
     const file = InputFile.fromBuffer(buffer, fileName);
-
-    console.log(`📁 Appwrite: Creating InputFile and uploading to storage...`);
-
     const response = await storage.createFile(STORAGE_ID, ID.unique(), file);
-
-    console.log(`✅ Appwrite: File uploaded successfully:`, {
-      fileId: response.$id,
-      fileName: fileName,
-      bucketId: response.bucketId,
-      sizeOriginal: response.sizeOriginal,
-      mimeType: response.mimeType
-    });
 
     return response.$id;
   } catch (error) {
@@ -156,37 +133,28 @@ export const saveAudioToStorage = async (
       fileName: fileName,
       storageId: STORAGE_ID,
       error: error,
-      message: error instanceof Error ? error.message : 'Unknown error',
-      stack: error instanceof Error ? error.stack : undefined
+      message: error instanceof Error ? error.message : "Unknown error",
+      stack: error instanceof Error ? error.stack : undefined,
     });
     return null;
   }
 };
 
 // Get audio file data from storage
-export const getAudioData = async (fileId: string): Promise<Uint8Array | null> => {
+export const getAudioData = async (
+  fileId: string,
+): Promise<Uint8Array | null> => {
   try {
-    console.log(`🔍 Appwrite: Attempting to download file with ID: ${fileId}`);
-    console.log(`📂 Storage bucket ID: ${STORAGE_ID}`);
-    
     const result = await storage.getFileDownload(STORAGE_ID, fileId);
-    
-    console.log(`✅ Appwrite: Audio data retrieved successfully:`, {
-      fileId: fileId,
-      dataType: result.constructor.name,
-      sizeBytes: result.byteLength,
-      sizeKB: Math.round(result.byteLength / 1024 * 100) / 100,
-      isUint8Array: result instanceof Uint8Array
-    });
-    
+
     return result;
   } catch (error) {
     console.error(`❌ Appwrite: Error getting audio data:`, {
       fileId: fileId,
       storageId: STORAGE_ID,
       error: error,
-      message: error instanceof Error ? error.message : 'Unknown error',
-      stack: error instanceof Error ? error.stack : undefined
+      message: error instanceof Error ? error.message : "Unknown error",
+      stack: error instanceof Error ? error.stack : undefined,
     });
     return null;
   }

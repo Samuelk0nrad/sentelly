@@ -124,11 +124,9 @@ export async function GET(request: Request) {
 
   try {
     // First, check if word exists in database
-    console.log(`Checking database for word: ${word}`);
     const existingWord = await getWordFromDatabase(word);
 
     if (existingWord) {
-      console.log(`Found word in database: ${word}`);
       return Response.json({
         ...existingWord,
         source: "database",
@@ -136,22 +134,17 @@ export async function GET(request: Request) {
     }
 
     // If not in database, get from Gemini and save
-    console.log(`Word not found in database, fetching from Gemini: ${word}`);
     const definition = await getDefinitionFromGemini(word);
 
     // Save to database
     const savedWord = await saveWordToDatabase(definition);
 
     if (savedWord) {
-      console.log(`Saved word to database: ${word}`);
       return Response.json({
         ...savedWord,
         source: "gemini",
       });
     } else {
-      console.log(
-        `Failed to save word to database, returning Gemini result: ${word}`,
-      );
       return Response.json({
         ...definition,
         source: "gemini",
