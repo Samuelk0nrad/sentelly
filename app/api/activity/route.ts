@@ -5,19 +5,24 @@ import { ActivityDocument } from "@/lib/server/appwrite";
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    
+
     // Extract IP address from request headers
     const forwarded = request.headers.get("x-forwarded-for");
-    const ip = forwarded ? forwarded.split(",")[0] : request.headers.get("x-real-ip") || "unknown";
-    
-    const activityData: Omit<ActivityDocument, "$id" | "$createdAt" | "$updatedAt"> = {
+    const ip = forwarded
+      ? forwarded.split(",")[0]
+      : request.headers.get("x-real-ip") || "unknown";
+
+    const activityData: Omit<
+      ActivityDocument,
+      "$id" | "$createdAt" | "$updatedAt"
+    > = {
       user_id: body.user_id || null,
       user_email: body.user_email || null,
       activity_type: body.activity_type,
       word_searched: body.word_searched || null,
       response_source: body.response_source,
       tokens_used: body.tokens_used || null,
-      response_time_ms: body.response_time_ms,
+      response_time: body.response_time,
       success: body.success,
       error_message: body.error_message || null,
       user_agent: body.user_agent || null,
@@ -27,20 +32,20 @@ export async function POST(request: Request) {
     };
 
     const result = await logActivity(activityData);
-    
+
     if (result) {
       return NextResponse.json({ success: true, id: result.$id });
     } else {
       return NextResponse.json(
         { success: false, error: "Failed to log activity" },
-        { status: 500 }
+        { status: 500 },
       );
     }
   } catch (error) {
     console.error("Activity logging error:", error);
     return NextResponse.json(
       { success: false, error: "Internal server error" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -51,17 +56,17 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const userId = searchParams.get("user_id");
     const limit = parseInt(searchParams.get("limit") || "100");
-    
+
     // You might want to add authentication here for admin access
     const { getUserActivities } = await import("@/lib/server/appwrite");
     const activities = await getUserActivities(userId || undefined, limit);
-    
+
     return NextResponse.json({ success: true, activities });
   } catch (error) {
     console.error("Error fetching activities:", error);
     return NextResponse.json(
       { success: false, error: "Failed to fetch activities" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

@@ -7,7 +7,10 @@ import { Button } from "@/components/ui/button";
 import { SearchIcon } from "lucide-react";
 import DictionaryResult from "@/components/dictionary-result";
 import SpellingSuggestions from "@/components/spelling-suggestions";
-import { trackActivity, PerformanceTracker } from "@/lib/utils/activity-tracker";
+import {
+  trackActivity,
+  PerformanceTracker,
+} from "@/lib/utils/activity-tracker";
 import { getCurrentUser } from "@/lib/client/appwrite";
 
 interface DictionaryResponse {
@@ -49,7 +52,10 @@ export default function DictionarySearch() {
   }, []);
 
   // Perform the actual API call
-  const performApiCall = async (word: string, ignoreCorrection: boolean = false) => {
+  const performApiCall = async (
+    word: string,
+    ignoreCorrection: boolean = false,
+  ) => {
     if (!word.trim()) {
       setResult(null);
       setError(null);
@@ -83,7 +89,7 @@ export default function DictionarySearch() {
       if (!response.ok) {
         throw new Error("Failed to fetch definition");
       }
-      
+
       const data = await response.json();
       setResult(data);
 
@@ -94,7 +100,7 @@ export default function DictionarySearch() {
         activity_type: "word_search",
         word_searched: data.word || word,
         response_source: data.source || "unknown",
-        response_time_ms: responseTime,
+        response_time: responseTime,
         success: true,
         metadata: {
           client_side_tracking: true,
@@ -106,11 +112,11 @@ export default function DictionarySearch() {
           }),
         },
       });
-
     } catch (err) {
       const responseTime = performanceTracker.end();
-      const errorMessage = err instanceof Error ? err.message : "An unexpected error occurred";
-      
+      const errorMessage =
+        err instanceof Error ? err.message : "An unexpected error occurred";
+
       setError(errorMessage);
       setResult(null);
 
@@ -121,7 +127,7 @@ export default function DictionarySearch() {
         activity_type: "word_search",
         word_searched: word,
         response_source: "error",
-        response_time_ms: responseTime,
+        response_time: responseTime,
         success: false,
         error_message: errorMessage,
         metadata: {
@@ -137,8 +143,9 @@ export default function DictionarySearch() {
   // Watch for URL parameter changes and trigger API call
   useEffect(() => {
     const wordFromUrl = searchParams.get("word");
-    const ignoreCorrectionFromUrl = searchParams.get("ignoreCorrection") === "true";
-    
+    const ignoreCorrectionFromUrl =
+      searchParams.get("ignoreCorrection") === "true";
+
     if (wordFromUrl) {
       setSearchTerm(wordFromUrl);
       performApiCall(wordFromUrl, ignoreCorrectionFromUrl);
@@ -178,14 +185,17 @@ export default function DictionarySearch() {
   };
 
   // Handle word selection from spelling suggestions
-  const handleWordSelect = (selectedWord: string, isOriginal: boolean = false) => {
+  const handleWordSelect = (
+    selectedWord: string,
+    isOriginal: boolean = false,
+  ) => {
     const params = new URLSearchParams();
     params.set("word", selectedWord);
-    
+
     if (isOriginal) {
       params.set("ignoreCorrection", "true");
     }
-    
+
     router.push(`/?${params.toString()}`, { scroll: false });
 
     // Track the selection
@@ -193,10 +203,12 @@ export default function DictionarySearch() {
       trackActivity({
         user_id: currentUser?.id,
         user_email: currentUser?.email,
-        activity_type: isOriginal ? "spelling_correction_dismissed" : "spelling_correction_accepted",
+        activity_type: isOriginal
+          ? "spelling_correction_dismissed"
+          : "spelling_correction_accepted",
         word_searched: selectedWord,
         response_source: "database",
-        response_time_ms: 0,
+        response_time: 0,
         success: true,
         metadata: {
           original_word: result.originalWord,
@@ -263,11 +275,11 @@ export default function DictionarySearch() {
               onWordSelect={handleWordSelect}
             />
           )}
-          
+
           {/* Dictionary Result */}
-          <DictionaryResult 
-            result={result} 
-            loading={loading} 
+          <DictionaryResult
+            result={result}
+            loading={loading}
             error={error}
             currentUser={currentUser}
           />

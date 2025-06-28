@@ -4,11 +4,15 @@ import { ActivityDocument } from "@/lib/server/appwrite";
 export interface ActivityTrackingData {
   user_id?: string;
   user_email?: string;
-  activity_type: "word_search" | "audio_generation" | "user_registration" | "user_login";
+  activity_type:
+    | "word_search"
+    | "audio_generation"
+    | "user_registration"
+    | "user_login";
   word_searched?: string;
   response_source: "database" | "gemini" | "cache" | "error";
   tokens_used?: number;
-  response_time_ms: number;
+  response_time: number;
   success: boolean;
   error_message?: string;
   session_id?: string;
@@ -28,7 +32,7 @@ export const generateSessionId = (): string => {
 // Get or create session ID from localStorage
 export const getSessionId = (): string => {
   if (typeof window === "undefined") return generateSessionId();
-  
+
   let sessionId = localStorage.getItem("sentelly_session_id");
   if (!sessionId) {
     sessionId = generateSessionId();
@@ -38,11 +42,14 @@ export const getSessionId = (): string => {
 };
 
 // Track activity by sending to API
-export const trackActivity = async (data: ActivityTrackingData): Promise<void> => {
+export const trackActivity = async (
+  data: ActivityTrackingData,
+): Promise<void> => {
   try {
     const sessionId = getSessionId();
-    const userAgent = typeof window !== "undefined" ? window.navigator.userAgent : "";
-    
+    const userAgent =
+      typeof window !== "undefined" ? window.navigator.userAgent : "";
+
     const activityData = {
       ...data,
       session_id: sessionId,

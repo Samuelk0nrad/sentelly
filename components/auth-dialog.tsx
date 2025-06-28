@@ -31,7 +31,10 @@ import {
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { login, register, logout, getCurrentUser } from "@/lib/client/appwrite";
-import { trackActivity, PerformanceTracker } from "@/lib/utils/activity-tracker";
+import {
+  trackActivity,
+  PerformanceTracker,
+} from "@/lib/utils/activity-tracker";
 import { useRouter } from "next/navigation";
 
 const formSchema = z.object({
@@ -86,7 +89,7 @@ export function AuthDialog() {
 
     const performanceTracker = new PerformanceTracker();
     setIsLoading(true);
-    
+
     try {
       if (isSignUp) {
         const { success, error } = await register(
@@ -95,7 +98,7 @@ export function AuthDialog() {
           values.name || "",
         );
         const responseTime = performanceTracker.end();
-        
+
         if (success) {
           toast({
             title: "Account created successfully",
@@ -110,7 +113,7 @@ export function AuthDialog() {
             user_email: values.email,
             activity_type: "user_registration",
             response_source: "database",
-            response_time_ms: responseTime,
+            response_time: responseTime,
             success: true,
             metadata: {
               registration_method: "email_password",
@@ -128,7 +131,7 @@ export function AuthDialog() {
             user_email: values.email,
             activity_type: "user_registration",
             response_source: "error",
-            response_time_ms: responseTime,
+            response_time: responseTime,
             success: false,
             error_message: error?.message ?? "Registration failed",
           });
@@ -137,7 +140,7 @@ export function AuthDialog() {
         console.log("Attempting login with:", values.email);
         const { success, error } = await login(values.email, values.password);
         const responseTime = performanceTracker.end();
-        
+
         console.log("Login result:", { success, error });
         if (success) {
           toast({
@@ -153,7 +156,7 @@ export function AuthDialog() {
             user_email: values.email,
             activity_type: "user_login",
             response_source: "database",
-            response_time_ms: responseTime,
+            response_time: responseTime,
             success: true,
             metadata: {
               login_method: "email_password",
@@ -171,7 +174,7 @@ export function AuthDialog() {
             user_email: values.email,
             activity_type: "user_login",
             response_source: "error",
-            response_time_ms: responseTime,
+            response_time: responseTime,
             success: false,
             error_message: error?.message ?? "Login failed",
           });
@@ -179,7 +182,7 @@ export function AuthDialog() {
       }
     } catch (error: any) {
       const responseTime = performanceTracker.end();
-      
+
       toast({
         variant: "destructive",
         title: "Error",
@@ -191,7 +194,7 @@ export function AuthDialog() {
         user_email: values.email,
         activity_type: isSignUp ? "user_registration" : "user_login",
         response_source: "error",
-        response_time_ms: responseTime,
+        response_time: responseTime,
         success: false,
         error_message: error?.message ?? "Unexpected error",
         metadata: {
@@ -206,11 +209,11 @@ export function AuthDialog() {
   const handleLogout = async () => {
     const performanceTracker = new PerformanceTracker();
     setIsLoading(true);
-    
+
     try {
       const { success, error } = await logout();
       const responseTime = performanceTracker.end();
-      
+
       if (success) {
         toast({
           title: "Logged out successfully",
@@ -224,7 +227,7 @@ export function AuthDialog() {
           user_email: user?.email,
           activity_type: "user_login", // Using login type for logout as well
           response_source: "database",
-          response_time_ms: responseTime,
+          response_time: responseTime,
           success: true,
           metadata: {
             action: "logout",
@@ -265,22 +268,22 @@ export function AuthDialog() {
               <span className="sm:hidden">Menu</span>
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent 
-            align="end" 
-            className="bg-gray-300/20 backdrop-blur-2xl border border-white/50 text-xs sm:text-sm"
+          <DropdownMenuContent
+            align="end"
+            className="border border-white/50 bg-gray-300/20 text-xs backdrop-blur-2xl sm:text-sm"
           >
-            <DropdownMenuItem 
+            <DropdownMenuItem
               onClick={() => router.push("/dashboard")}
-              className="text-white/80 hover:text-white hover:bg-white/10 cursor-pointer"
+              className="cursor-pointer text-white/80 hover:bg-white/10 hover:text-white"
             >
               <User className="mr-2 h-4 w-4" />
               Dashboard
             </DropdownMenuItem>
             <DropdownMenuSeparator className="bg-white/20" />
-            <DropdownMenuItem 
+            <DropdownMenuItem
               onClick={handleLogout}
               disabled={isLoading}
-              className="text-white/80 hover:text-white hover:bg-white/10 cursor-pointer"
+              className="cursor-pointer text-white/80 hover:bg-white/10 hover:text-white"
             >
               {isLoading ? (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />

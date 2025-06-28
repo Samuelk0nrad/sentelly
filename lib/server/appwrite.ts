@@ -9,6 +9,8 @@ const appwriteApiKey = process.env.NEXT_PUBLIC_APPWRITE_API_KEY;
 const appwriteProjectId = process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID;
 const appwriteDatabaseId = process.env.NEXT_PUBLIC_APPWRITE_DATABASE_ID;
 const appwriteCollectionId = process.env.NEXT_PUBLIC_APPWRITE_COLLECTION_ID;
+const appwriteActivityCollectionId =
+  process.env.NEXT_PUBLIC_APPWRITE_ACTIVITY_COLLECTION_ID;
 const appwriteStorageId = process.env.NEXT_PUBLIC_APPWRITE_STORAGE_ID;
 
 if (!appwriteEndpoint || !appwriteProjectId) {
@@ -37,7 +39,8 @@ export { client, ID };
 // Database and Storage IDs
 export const DATABASE_ID = appwriteDatabaseId || "default";
 export const COLLECTION_ID = appwriteCollectionId || "words";
-export const ACTIVITY_COLLECTION_ID = "activities";
+export const ACTIVITY_COLLECTION_ID =
+  appwriteActivityCollectionId || "activities";
 export const STORAGE_ID = appwriteStorageId || "pronunciation";
 
 // Word interface matching Appwrite structure
@@ -64,11 +67,17 @@ export interface ActivityDocument {
   $id?: string;
   user_id?: string; // null for anonymous users
   user_email?: string; // for easier identification
-  activity_type: "word_search" | "audio_generation" | "user_registration" | "user_login" | "spelling_correction_dismissed" | "spelling_correction_accepted";
+  activity_type:
+    | "word_search"
+    | "audio_generation"
+    | "user_registration"
+    | "user_login"
+    | "spelling_correction_dismissed"
+    | "spelling_correction_accepted";
   word_searched?: string;
   response_source: "database" | "gemini" | "cache" | "error";
   tokens_used?: number;
-  response_time_ms: number;
+  response_time: number;
   success: boolean;
   error_message?: string;
   user_agent?: string;
@@ -223,7 +232,7 @@ export const getUserActivities = async (
 ): Promise<ActivityDocument[]> => {
   try {
     const queries = [sdk.Query.orderDesc("$createdAt"), sdk.Query.limit(limit)];
-    
+
     if (userId) {
       queries.push(sdk.Query.equal("user_id", userId));
     }
@@ -255,7 +264,7 @@ export const getActivityAnalytics = async (
   try {
     const now = new Date();
     let startDate = new Date();
-    
+
     switch (timeframe) {
       case "day":
         startDate.setDate(now.getDate() - 1);
@@ -279,20 +288,33 @@ export const getActivityAnalytics = async (
     );
 
     const activities = response.documents as unknown as ActivityDocument[];
-    
+
     const totalSearches = activities.length;
-    const uniqueWords = new Set(activities.map(a => a.word_searched).filter(Boolean)).size;
-    const totalTokensUsed = activities.reduce((sum, a) => sum + (a.tokens_used || 0), 0);
-    const averageResponseTime = activities.reduce((sum, a) => sum + a.response_time_ms, 0) / totalSearches || 0;
-    const successfulSearches = activities.filter(a => a.success).length;
-    const successRate = totalSearches > 0 ? (successfulSearches / totalSearches) * 100 : 0;
-    
+    const uniqueWords = new Set(
+      activities.map((a) => a.word_searched).filter(Boolean),
+    ).size;
+    const totalTokensUsed = activities.reduce(
+      (sum, a) => sum + (a.tokens_used || 0),
+      0,
+    );
+    const averageResponseTime =
+      activities.reduce((sum, a) => sum + a.response_time, 0) / totalSearches ||
+      0;
+    const successfulSearches = activities.filter((a) => a.success).length;
+    const successRate =
+      totalSearches > 0 ? (successfulSearches / totalSearches) * 100 : 0;
+
     const sourceBreakdown = activities.reduce(
       (acc, a) => {
-        acc[a.response_source as keyof typeof acc] = (acc[a.response_source as keyof typeof acc] || 0) + 1;
+        acc[a.response_source as keyof typeof acc] =
+          (acc[a.response_source as keyof typeof acc] || 0) + 1;
         return acc;
       },
-      { database: 0, gemini: 0, error: 0 } as { database: number; gemini: number; error: number }
+      { database: 0, gemini: 0, error: 0 } as {
+        database: number;
+        gemini: number;
+        error: number;
+      },
     );
 
     return {

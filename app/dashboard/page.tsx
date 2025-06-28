@@ -9,14 +9,14 @@ import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
-import { 
-  ArrowLeft, 
-  Activity, 
-  Settings, 
-  BarChart3, 
-  Search, 
-  Volume2, 
-  Clock, 
+import {
+  ArrowLeft,
+  Activity,
+  Settings,
+  BarChart3,
+  Search,
+  Volume2,
+  Clock,
   Zap,
   Database,
   Sparkles,
@@ -26,7 +26,7 @@ import {
   TrendingUp,
   Target,
   CheckCircle,
-  XCircle
+  XCircle,
 } from "lucide-react";
 import { getCurrentUser } from "@/lib/client/appwrite";
 import { useToast } from "@/hooks/use-toast";
@@ -47,7 +47,7 @@ interface UserStats {
     $id: string;
     activity_type: string;
     word_searched?: string;
-    response_time_ms: number;
+    response_time: number;
     success: boolean;
     tokens_used?: number;
     response_source: string;
@@ -87,7 +87,9 @@ export default function Dashboard() {
         setUser(data);
 
         // Fetch user statistics
-        const statsResponse = await fetch(`/api/user-stats?user_id=${data.$id}`);
+        const statsResponse = await fetch(
+          `/api/user-stats?user_id=${data.$id}`,
+        );
         if (statsResponse.ok) {
           const statsData = await statsResponse.json();
           setStats(statsData.stats);
@@ -116,10 +118,13 @@ export default function Dashboard() {
   const handleSettingChange = (key: keyof UserSettings, value: boolean) => {
     const newSettings = { ...settings, [key]: value };
     setSettings(newSettings);
-    
+
     // Save to localStorage
     if (user) {
-      localStorage.setItem(`user_settings_${user.$id}`, JSON.stringify(newSettings));
+      localStorage.setItem(
+        `user_settings_${user.$id}`,
+        JSON.stringify(newSettings),
+      );
       toast({
         title: "Settings updated",
         description: "Your preferences have been saved",
@@ -154,22 +159,31 @@ export default function Dashboard() {
     switch (source) {
       case "database":
         return (
-          <Badge variant="outline" className="text-xs bg-blue-500/20 text-blue-200 border-blue-400/30">
-            <Database className="w-3 h-3 mr-1" />
+          <Badge
+            variant="outline"
+            className="border-blue-400/30 bg-blue-500/20 text-xs text-blue-200"
+          >
+            <Database className="mr-1 h-3 w-3" />
             Cached
           </Badge>
         );
       case "gemini":
         return (
-          <Badge variant="outline" className="text-xs bg-purple-500/20 text-purple-200 border-purple-400/30">
-            <Sparkles className="w-3 h-3 mr-1" />
+          <Badge
+            variant="outline"
+            className="border-purple-400/30 bg-purple-500/20 text-xs text-purple-200"
+          >
+            <Sparkles className="mr-1 h-3 w-3" />
             AI
           </Badge>
         );
       case "error":
         return (
-          <Badge variant="outline" className="text-xs bg-red-500/20 text-red-200 border-red-400/30">
-            <XCircle className="w-3 h-3 mr-1" />
+          <Badge
+            variant="outline"
+            className="border-red-400/30 bg-red-500/20 text-xs text-red-200"
+          >
+            <XCircle className="mr-1 h-3 w-3" />
             Error
           </Badge>
         );
@@ -180,7 +194,7 @@ export default function Dashboard() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center">
+      <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
         <div className="text-white">Loading dashboard...</div>
       </div>
     );
@@ -192,21 +206,25 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
-      <div className="container mx-auto px-4 py-6 max-w-6xl">
+      <div className="container mx-auto max-w-6xl px-4 py-6">
         {/* Header */}
-        <div className="flex items-center justify-between mb-6">
+        <div className="mb-6 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <Button
               variant="ghost"
               size="icon"
               onClick={() => router.push("/")}
-              className="text-white/80 hover:text-white hover:bg-white/10"
+              className="text-white/80 hover:bg-white/10 hover:text-white"
             >
               <ArrowLeft className="h-5 w-5" />
             </Button>
             <div>
-              <h1 className="text-2xl sm:text-3xl font-bold text-white">Dashboard</h1>
-              <p className="text-white/60">Welcome back, {user.name || user.email}</p>
+              <h1 className="text-2xl font-bold text-white sm:text-3xl">
+                Dashboard
+              </h1>
+              <p className="text-white/60">
+                Welcome back, {user.name || user.email}
+              </p>
             </div>
           </div>
         </div>
@@ -215,16 +233,18 @@ export default function Dashboard() {
         <Card className="mb-6 border-white/20 bg-white/5 backdrop-blur-lg">
           <CardContent className="p-6">
             <div className="flex items-center gap-4">
-              <div className="h-16 w-16 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
+              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-purple-500 to-pink-500">
                 <User className="h-8 w-8 text-white" />
               </div>
               <div className="flex-1">
-                <h2 className="text-xl font-semibold text-white">{user.name || "User"}</h2>
+                <h2 className="text-xl font-semibold text-white">
+                  {user.name || "User"}
+                </h2>
                 <div className="flex items-center gap-2 text-white/60">
                   <Mail className="h-4 w-4" />
                   {user.email}
                 </div>
-                <div className="flex items-center gap-2 text-white/60 mt-1">
+                <div className="mt-1 flex items-center gap-2 text-white/60">
                   <Calendar className="h-4 w-4" />
                   Member since {new Date(user.$createdAt).toLocaleDateString()}
                 </div>
@@ -234,18 +254,31 @@ export default function Dashboard() {
         </Card>
 
         {/* Main Content */}
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3 bg-white/10 backdrop-blur-lg border border-white/20">
-            <TabsTrigger value="overview" className="text-white/80 data-[state=active]:text-white data-[state=active]:bg-white/20">
-              <BarChart3 className="h-4 w-4 mr-2" />
+        <Tabs
+          value={activeTab}
+          onValueChange={setActiveTab}
+          className="space-y-6"
+        >
+          <TabsList className="grid w-full grid-cols-3 border border-white/20 bg-white/10 backdrop-blur-lg">
+            <TabsTrigger
+              value="overview"
+              className="text-white/80 data-[state=active]:bg-white/20 data-[state=active]:text-white"
+            >
+              <BarChart3 className="mr-2 h-4 w-4" />
               Overview
             </TabsTrigger>
-            <TabsTrigger value="activity" className="text-white/80 data-[state=active]:text-white data-[state=active]:bg-white/20">
-              <Activity className="h-4 w-4 mr-2" />
+            <TabsTrigger
+              value="activity"
+              className="text-white/80 data-[state=active]:bg-white/20 data-[state=active]:text-white"
+            >
+              <Activity className="mr-2 h-4 w-4" />
               Activity
             </TabsTrigger>
-            <TabsTrigger value="settings" className="text-white/80 data-[state=active]:text-white data-[state=active]:bg-white/20">
-              <Settings className="h-4 w-4 mr-2" />
+            <TabsTrigger
+              value="settings"
+              className="text-white/80 data-[state=active]:bg-white/20 data-[state=active]:text-white"
+            >
+              <Settings className="mr-2 h-4 w-4" />
               Settings
             </TabsTrigger>
           </TabsList>
@@ -255,13 +288,17 @@ export default function Dashboard() {
             {stats && (
               <>
                 {/* Stats Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
                   <Card className="border-white/20 bg-white/5 backdrop-blur-lg">
                     <CardContent className="p-4">
                       <div className="flex items-center justify-between">
                         <div>
-                          <p className="text-white/60 text-sm">Total Searches</p>
-                          <p className="text-2xl font-bold text-white">{stats.totalSearches}</p>
+                          <p className="text-sm text-white/60">
+                            Total Searches
+                          </p>
+                          <p className="text-2xl font-bold text-white">
+                            {stats.totalSearches}
+                          </p>
                         </div>
                         <Search className="h-8 w-8 text-blue-400" />
                       </div>
@@ -272,8 +309,12 @@ export default function Dashboard() {
                     <CardContent className="p-4">
                       <div className="flex items-center justify-between">
                         <div>
-                          <p className="text-white/60 text-sm">Audio Generated</p>
-                          <p className="text-2xl font-bold text-white">{stats.totalAudioGenerations}</p>
+                          <p className="text-sm text-white/60">
+                            Audio Generated
+                          </p>
+                          <p className="text-2xl font-bold text-white">
+                            {stats.totalAudioGenerations}
+                          </p>
                         </div>
                         <Volume2 className="h-8 w-8 text-green-400" />
                       </div>
@@ -284,8 +325,10 @@ export default function Dashboard() {
                     <CardContent className="p-4">
                       <div className="flex items-center justify-between">
                         <div>
-                          <p className="text-white/60 text-sm">Tokens Used</p>
-                          <p className="text-2xl font-bold text-white">{stats.totalTokensUsed.toLocaleString()}</p>
+                          <p className="text-sm text-white/60">Tokens Used</p>
+                          <p className="text-2xl font-bold text-white">
+                            {stats.totalTokensUsed.toLocaleString()}
+                          </p>
                         </div>
                         <Zap className="h-8 w-8 text-yellow-400" />
                       </div>
@@ -296,8 +339,10 @@ export default function Dashboard() {
                     <CardContent className="p-4">
                       <div className="flex items-center justify-between">
                         <div>
-                          <p className="text-white/60 text-sm">Success Rate</p>
-                          <p className="text-2xl font-bold text-white">{stats.successRate.toFixed(1)}%</p>
+                          <p className="text-sm text-white/60">Success Rate</p>
+                          <p className="text-2xl font-bold text-white">
+                            {stats.successRate.toFixed(1)}%
+                          </p>
                         </div>
                         <TrendingUp className="h-8 w-8 text-purple-400" />
                       </div>
@@ -306,27 +351,40 @@ export default function Dashboard() {
                 </div>
 
                 {/* Additional Stats */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
                   <Card className="border-white/20 bg-white/5 backdrop-blur-lg">
                     <CardHeader>
-                      <CardTitle className="text-white flex items-center gap-2">
+                      <CardTitle className="flex items-center gap-2 text-white">
                         <Target className="h-5 w-5" />
                         Performance Metrics
                       </CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-4">
-                      <div className="flex justify-between items-center">
-                        <span className="text-white/60">Unique Words Searched</span>
-                        <span className="text-white font-semibold">{stats.uniqueWordsSearched}</span>
+                      <div className="flex items-center justify-between">
+                        <span className="text-white/60">
+                          Unique Words Searched
+                        </span>
+                        <span className="font-semibold text-white">
+                          {stats.uniqueWordsSearched}
+                        </span>
                       </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-white/60">Average Response Time</span>
-                        <span className="text-white font-semibold">{stats.averageResponseTime}ms</span>
+                      <div className="flex items-center justify-between">
+                        <span className="text-white/60">
+                          Average Response Time
+                        </span>
+                        <span className="font-semibold text-white">
+                          {stats.averageResponseTime}ms
+                        </span>
                       </div>
-                      <div className="flex justify-between items-center">
+                      <div className="flex items-center justify-between">
                         <span className="text-white/60">Cache Hit Rate</span>
-                        <span className="text-white font-semibold">
-                          {((stats.sourceBreakdown.database / stats.totalSearches) * 100).toFixed(1)}%
+                        <span className="font-semibold text-white">
+                          {(
+                            (stats.sourceBreakdown.database /
+                              stats.totalSearches) *
+                            100
+                          ).toFixed(1)}
+                          %
                         </span>
                       </div>
                     </CardContent>
@@ -334,32 +392,38 @@ export default function Dashboard() {
 
                   <Card className="border-white/20 bg-white/5 backdrop-blur-lg">
                     <CardHeader>
-                      <CardTitle className="text-white flex items-center gap-2">
+                      <CardTitle className="flex items-center gap-2 text-white">
                         <Database className="h-5 w-5" />
                         Source Breakdown
                       </CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-4">
-                      <div className="flex justify-between items-center">
+                      <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
                           <Database className="h-4 w-4 text-blue-400" />
                           <span className="text-white/60">Database Cache</span>
                         </div>
-                        <span className="text-white font-semibold">{stats.sourceBreakdown.database}</span>
+                        <span className="font-semibold text-white">
+                          {stats.sourceBreakdown.database}
+                        </span>
                       </div>
-                      <div className="flex justify-between items-center">
+                      <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
                           <Sparkles className="h-4 w-4 text-purple-400" />
                           <span className="text-white/60">AI Generated</span>
                         </div>
-                        <span className="text-white font-semibold">{stats.sourceBreakdown.gemini}</span>
+                        <span className="font-semibold text-white">
+                          {stats.sourceBreakdown.gemini}
+                        </span>
                       </div>
-                      <div className="flex justify-between items-center">
+                      <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
                           <XCircle className="h-4 w-4 text-red-400" />
                           <span className="text-white/60">Errors</span>
                         </div>
-                        <span className="text-white font-semibold">{stats.sourceBreakdown.error}</span>
+                        <span className="font-semibold text-white">
+                          {stats.sourceBreakdown.error}
+                        </span>
                       </div>
                     </CardContent>
                   </Card>
@@ -372,7 +436,7 @@ export default function Dashboard() {
           <TabsContent value="activity" className="space-y-6">
             <Card className="border-white/20 bg-white/5 backdrop-blur-lg">
               <CardHeader>
-                <CardTitle className="text-white flex items-center gap-2">
+                <CardTitle className="flex items-center gap-2 text-white">
                   <Activity className="h-5 w-5" />
                   Recent Activity
                 </CardTitle>
@@ -383,23 +447,28 @@ export default function Dashboard() {
                     {stats.recentActivity.map((activity) => (
                       <div
                         key={activity.$id}
-                        className="flex items-center justify-between p-3 rounded-lg bg-white/5 border border-white/10"
+                        className="flex items-center justify-between rounded-lg border border-white/10 bg-white/5 p-3"
                       >
                         <div className="flex items-center gap-3">
-                          <div className={`p-2 rounded-full ${
-                            activity.success ? "bg-green-500/20" : "bg-red-500/20"
-                          }`}>
+                          <div
+                            className={`rounded-full p-2 ${
+                              activity.success
+                                ? "bg-green-500/20"
+                                : "bg-red-500/20"
+                            }`}
+                          >
                             {getActivityIcon(activity.activity_type)}
                           </div>
                           <div>
-                            <p className="text-white font-medium">
-                              {activity.word_searched || activity.activity_type.replace("_", " ")}
+                            <p className="font-medium text-white">
+                              {activity.word_searched ||
+                                activity.activity_type.replace("_", " ")}
                             </p>
                             <div className="flex items-center gap-2 text-sm text-white/60">
                               <Clock className="h-3 w-3" />
                               {formatDate(activity.$createdAt)}
                               <span>•</span>
-                              <span>{activity.response_time_ms}ms</span>
+                              <span>{activity.response_time}ms</span>
                               {activity.tokens_used && (
                                 <>
                                   <span>•</span>
@@ -421,7 +490,9 @@ export default function Dashboard() {
                     ))}
                   </div>
                 ) : (
-                  <p className="text-white/60 text-center py-8">No recent activity found</p>
+                  <p className="py-8 text-center text-white/60">
+                    No recent activity found
+                  </p>
                 )}
               </CardContent>
             </Card>
@@ -431,7 +502,7 @@ export default function Dashboard() {
           <TabsContent value="settings" className="space-y-6">
             <Card className="border-white/20 bg-white/5 backdrop-blur-lg">
               <CardHeader>
-                <CardTitle className="text-white flex items-center gap-2">
+                <CardTitle className="flex items-center gap-2 text-white">
                   <Settings className="h-5 w-5" />
                   Preferences
                 </CardTitle>
@@ -441,12 +512,15 @@ export default function Dashboard() {
                   <div className="space-y-0.5">
                     <Label className="text-white">Auto-play Audio</Label>
                     <p className="text-sm text-white/60">
-                      Automatically play pronunciation when viewing word definitions
+                      Automatically play pronunciation when viewing word
+                      definitions
                     </p>
                   </div>
                   <Switch
                     checked={settings.autoPlayAudio}
-                    onCheckedChange={(checked) => handleSettingChange("autoPlayAudio", checked)}
+                    onCheckedChange={(checked) =>
+                      handleSettingChange("autoPlayAudio", checked)
+                    }
                   />
                 </div>
 
@@ -461,7 +535,9 @@ export default function Dashboard() {
                   </div>
                   <Switch
                     checked={settings.enableSpellingCorrection}
-                    onCheckedChange={(checked) => handleSettingChange("enableSpellingCorrection", checked)}
+                    onCheckedChange={(checked) =>
+                      handleSettingChange("enableSpellingCorrection", checked)
+                    }
                   />
                 </div>
 
@@ -476,7 +552,9 @@ export default function Dashboard() {
                   </div>
                   <Switch
                     checked={settings.showDetailedAnalytics}
-                    onCheckedChange={(checked) => handleSettingChange("showDetailedAnalytics", checked)}
+                    onCheckedChange={(checked) =>
+                      handleSettingChange("showDetailedAnalytics", checked)
+                    }
                   />
                 </div>
 
@@ -491,7 +569,9 @@ export default function Dashboard() {
                   </div>
                   <Switch
                     checked={settings.emailNotifications}
-                    onCheckedChange={(checked) => handleSettingChange("emailNotifications", checked)}
+                    onCheckedChange={(checked) =>
+                      handleSettingChange("emailNotifications", checked)
+                    }
                   />
                 </div>
               </CardContent>
@@ -499,10 +579,12 @@ export default function Dashboard() {
 
             <Card className="border-white/20 bg-white/5 backdrop-blur-lg">
               <CardHeader>
-                <CardTitle className="text-white">Account Information</CardTitle>
+                <CardTitle className="text-white">
+                  Account Information
+                </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                   <div>
                     <Label className="text-white/60">Name</Label>
                     <p className="text-white">{user.name || "Not set"}</p>
@@ -513,11 +595,13 @@ export default function Dashboard() {
                   </div>
                   <div>
                     <Label className="text-white/60">User ID</Label>
-                    <p className="text-white font-mono text-sm">{user.$id}</p>
+                    <p className="font-mono text-sm text-white">{user.$id}</p>
                   </div>
                   <div>
                     <Label className="text-white/60">Member Since</Label>
-                    <p className="text-white">{new Date(user.$createdAt).toLocaleDateString()}</p>
+                    <p className="text-white">
+                      {new Date(user.$createdAt).toLocaleDateString()}
+                    </p>
                   </div>
                 </div>
               </CardContent>

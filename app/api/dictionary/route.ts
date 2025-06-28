@@ -4,7 +4,11 @@ import {
   saveWordToDatabase,
   WordDocument,
 } from "@/lib/server/appwrite";
-import { trackActivity, PerformanceTracker, extractTokenUsage } from "@/lib/utils/activity-tracker";
+import {
+  trackActivity,
+  PerformanceTracker,
+  extractTokenUsage,
+} from "@/lib/utils/activity-tracker";
 
 const SYSTEM_PROMPT = `You are a dictionary API that provides detailed word definitions.
 CRITICAL: You must ONLY return a valid JSON object with no additional text, markdown, or formatting.
@@ -101,7 +105,7 @@ async function getSpellingSuggestions(word: string): Promise<{
     });
 
     const data = JSON.parse(response.text || "{}");
-    
+
     return {
       isMisspelling: data.is_misspelling || false,
       suggestedWord: data.suggested_word || "",
@@ -117,7 +121,9 @@ async function getSpellingSuggestions(word: string): Promise<{
   }
 }
 
-async function getDefinitionFromGemini(word: string): Promise<{ wordDocument: WordDocument; tokensUsed: number }> {
+async function getDefinitionFromGemini(
+  word: string,
+): Promise<{ wordDocument: WordDocument; tokensUsed: number }> {
   try {
     const prompt = `${SYSTEM_PROMPT}\n\nDefine the word: ${word}`;
 
@@ -203,14 +209,14 @@ export async function GET(request: Request) {
 
   if (!word) {
     const responseTime = performanceTracker.end();
-    
+
     // Track failed activity
     await trackActivity({
       user_id: userId,
       user_email: userEmail,
       activity_type: "word_search",
       response_source: "error",
-      response_time_ms: responseTime,
+      response_time: responseTime,
       success: false,
       error_message: "Word parameter is required",
     });
@@ -229,8 +235,11 @@ export async function GET(request: Request) {
     // Check for spelling corrections if not ignored
     if (!ignoreCorrection) {
       spellingCorrection = await getSpellingSuggestions(word);
-      
-      if (spellingCorrection.isMisspelling && spellingCorrection.suggestedWord) {
+
+      if (
+        spellingCorrection.isMisspelling &&
+        spellingCorrection.suggestedWord
+      ) {
         wordToSearch = spellingCorrection.suggestedWord;
       }
     }
@@ -240,7 +249,7 @@ export async function GET(request: Request) {
 
     if (existingWord) {
       const responseTime = performanceTracker.end();
-      
+
       // Prepare response with spelling correction info
       const response = {
         ...existingWord,
@@ -252,7 +261,7 @@ export async function GET(request: Request) {
           isCorrectionSuggested: true,
         }),
       };
-      
+
       // Track successful database hit
       await trackActivity({
         user_id: userId,
@@ -260,7 +269,7 @@ export async function GET(request: Request) {
         activity_type: "word_search",
         word_searched: wordToSearch,
         response_source: "database",
-        response_time_ms: responseTime,
+        response_time: responseTime,
         success: true,
         metadata: {
           cache_hit: true,
@@ -277,7 +286,8 @@ export async function GET(request: Request) {
     }
 
     // If not in database, get from Gemini and save
-    const { wordDocument: definition, tokensUsed } = await getDefinitionFromGemini(wordToSearch);
+    const { wordDocument: definition, tokensUsed } =
+      await getDefinitionFromGemini(wordToSearch);
 
     // Save to database
     const savedWord = await saveWordToDatabase(definition);
@@ -303,7 +313,7 @@ export async function GET(request: Request) {
       word_searched: wordToSearch,
       response_source: "gemini",
       tokens_used: tokensUsed,
-      response_time_ms: responseTime,
+      response_time: responseTime,
       success: true,
       metadata: {
         gemini_model: "gemini-2.0-flash-lite",
@@ -322,7 +332,7 @@ export async function GET(request: Request) {
   } catch (error) {
     console.error("API error:", error);
     const responseTime = performanceTracker.end();
-    
+
     // Track failed activity
     await trackActivity({
       user_id: userId,
@@ -330,11 +340,12 @@ export async function GET(request: Request) {
       activity_type: "word_search",
       word_searched: word,
       response_source: "error",
-      response_time_ms: responseTime,
+      response_time: responseTime,
       success: false,
       error_message: error instanceof Error ? error.message : "Unknown error",
       metadata: {
-        error_type: error instanceof Error ? error.constructor.name : "UnknownError",
+        error_type:
+          error instanceof Error ? error.constructor.name : "UnknownError",
       },
     });
 

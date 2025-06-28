@@ -5,7 +5,10 @@ import {
   saveAudioToStorage,
   getAudioData,
 } from "@/lib/server/appwrite";
-import { trackActivity, PerformanceTracker } from "@/lib/utils/activity-tracker";
+import {
+  trackActivity,
+  PerformanceTracker,
+} from "@/lib/utils/activity-tracker";
 
 async function getAudioFromElevenLabs(text: string): Promise<ArrayBuffer> {
   const VOICE_ID = "21m00Tcm4TlvDq8ikWAM"; // Default voice ID (Rachel)
@@ -45,20 +48,20 @@ export async function GET(request: Request) {
   const performanceTracker = new PerformanceTracker();
   const { searchParams } = new URL(request.url);
   const text = searchParams.get("text");
-  
+
   // Extract user info
   const userId = searchParams.get("user_id") || null;
   const userEmail = searchParams.get("user_email") || null;
 
   if (!text) {
     const responseTime = performanceTracker.end();
-    
+
     await trackActivity({
       user_id: userId,
       user_email: userEmail,
       activity_type: "audio_generation",
       response_source: "error",
-      response_time_ms: responseTime,
+      response_time: responseTime,
       success: false,
       error_message: "Text parameter is required",
     });
@@ -79,14 +82,14 @@ export async function GET(request: Request) {
 
         if (audioData) {
           const responseTime = performanceTracker.end();
-          
+
           await trackActivity({
             user_id: userId,
             user_email: userEmail,
             activity_type: "audio_generation",
             word_searched: text,
             response_source: "database",
-            response_time_ms: responseTime,
+            response_time: responseTime,
             success: true,
             metadata: {
               cache_hit: true,
@@ -114,7 +117,7 @@ export async function GET(request: Request) {
     // Generate new audio from ElevenLabs
     const audioBuffer = await getAudioFromElevenLabs(text);
     const responseTime = performanceTracker.end();
-    
+
     // Save to storage if we have a word document
     if (existingWord) {
       try {
@@ -154,7 +157,7 @@ export async function GET(request: Request) {
       activity_type: "audio_generation",
       word_searched: text,
       response_source: "gemini", // ElevenLabs in this case, but using gemini as external API
-      response_time_ms: responseTime,
+      response_time: responseTime,
       success: true,
       metadata: {
         cache_hit: false,
@@ -179,20 +182,21 @@ export async function GET(request: Request) {
       stack: error instanceof Error ? error.stack : undefined,
       text: text,
     });
-    
+
     const responseTime = performanceTracker.end();
-    
+
     await trackActivity({
       user_id: userId,
       user_email: userEmail,
       activity_type: "audio_generation",
       word_searched: text,
       response_source: "error",
-      response_time_ms: responseTime,
+      response_time: responseTime,
       success: false,
       error_message: error instanceof Error ? error.message : "Unknown error",
       metadata: {
-        error_type: error instanceof Error ? error.constructor.name : "UnknownError",
+        error_type:
+          error instanceof Error ? error.constructor.name : "UnknownError",
       },
     });
 
