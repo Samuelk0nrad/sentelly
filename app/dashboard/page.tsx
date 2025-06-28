@@ -31,6 +31,55 @@ import {
 import { getCurrentUser } from "@/lib/client/appwrite";
 import { useToast } from "@/hooks/use-toast";
 
+// Metadata for the dashboard page
+export const metadata = {
+  title: "Dashboard - Sentelly | AI Dictionary Analytics & Settings",
+  description: "View your word search analytics, manage preferences, and track your learning progress with Sentelly's intelligent dictionary dashboard.",
+  keywords: [
+    "dictionary dashboard",
+    "word analytics",
+    "learning progress",
+    "AI dictionary stats",
+    "vocabulary tracking",
+    "pronunciation analytics",
+    "user settings",
+    "word search history"
+  ],
+  openGraph: {
+    title: "Sentelly Dashboard - Your AI Dictionary Analytics",
+    description: "Track your vocabulary learning journey with detailed analytics, pronunciation stats, and personalized settings.",
+    type: "website",
+    url: "https://sentelly.netlify.app/dashboard",
+    siteName: "Sentelly",
+    images: [
+      {
+        url: "https://sentelly.netlify.app/og-dashboard.png",
+        width: 1200,
+        height: 630,
+        alt: "Sentelly Dashboard - AI Dictionary Analytics",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Sentelly Dashboard - AI Dictionary Analytics",
+    description: "Track your vocabulary learning with detailed word search analytics and pronunciation statistics.",
+    images: ["https://sentelly.netlify.app/og-dashboard.png"],
+    creator: "@sentelly",
+    site: "@sentelly",
+  },
+  robots: {
+    index: false, // Dashboard should not be indexed by search engines
+    follow: true,
+    noarchive: true,
+    nosnippet: true,
+    noimageindex: true,
+  },
+  alternates: {
+    canonical: "https://sentelly.netlify.app/dashboard",
+  },
+};
+
 interface UserStats {
   totalSearches: number;
   totalAudioGenerations: number;
