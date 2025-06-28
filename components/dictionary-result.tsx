@@ -178,32 +178,6 @@ export default function DictionaryResult({
                 <span className="text-white/90">{result.definition}</span>
               </p>
             </div>
-            
-            {/* Source badge and controls */}
-            <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
-              {result.source && (
-                <Badge 
-                  variant="outline" 
-                  className={`text-xs border-white/25 ${
-                    result.source === "database" 
-                      ? "bg-blue-500/20 text-blue-200" 
-                      : "bg-purple-500/20 text-purple-200"
-                  }`}
-                >
-                  {result.source === "database" ? (
-                    <>
-                      <Database className="w-3 h-3 mr-1" />
-                      Cached
-                    </>
-                  ) : (
-                    <>
-                      <Sparkles className="w-3 h-3 mr-1" />
-                      AI Generated
-                    </>
-                  )}
-                </Badge>
-              )}
-              
               {/* Phonetic and audio controls */}
               {result.phonetic && (
                 <div className="flex items-center gap-2 sm:gap-3">
