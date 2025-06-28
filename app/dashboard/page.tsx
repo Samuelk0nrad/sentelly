@@ -201,7 +201,7 @@ export default function Dashboard() {
   if (loading) {
     return (
       <div className="light-gradient min-h-screen">
-        <div className="sparrow-gradient flex min-h-screen items-center justify-center">
+        <div className="dashboard-gradient flex min-h-screen items-center justify-center">
           <div className="text-white">Loading dashboard...</div>
         </div>
       </div>
@@ -214,7 +214,7 @@ export default function Dashboard() {
 
   return (
     <main className="light-gradient min-h-screen">
-      <div className="sparrow-gradient min-h-screen">
+      <div className="dashboard-gradient min-h-screen">
         <div className="container mx-auto max-w-6xl px-4 py-6">
           {/* Header */}
           <div className="mb-6 flex items-center justify-between">

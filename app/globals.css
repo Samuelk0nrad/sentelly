@@ -119,6 +119,58 @@
   z-index: -1;
 }
 
+@utility dashboard-gradient {
+  background: linear-gradient(
+    135deg,
+    rgba(247, 163, 114, 0.3) 0%,
+    rgba(253, 211, 184, 0.4) 25%,
+    rgba(255, 138, 128, 0.5) 50%,
+    rgba(245, 152, 144, 0.4) 75%,
+    rgba(247, 163, 114, 0.3) 100%
+  );
+  
+  position: relative;
+  isolation: isolate;
+}
+
+.dashboard-gradient::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(
+    ellipse at top left,
+    rgba(247, 163, 114, 0.2) 0%,
+    transparent 50%
+  ),
+  radial-gradient(
+    ellipse at bottom right,
+    rgba(253, 211, 184, 0.3) 0%,
+    transparent 50%
+  ),
+  radial-gradient(
+    ellipse at center,
+    rgba(255, 138, 128, 0.1) 0%,
+    transparent 70%
+  );
+  z-index: -2;
+}
+
+.dashboard-gradient::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: 
+    linear-gradient(45deg, transparent 30%, rgba(247, 163, 114, 0.05) 50%, transparent 70%),
+    linear-gradient(-45deg, transparent 30%, rgba(253, 211, 184, 0.05) 50%, transparent 70%);
+  z-index: -1;
+}
+
 @utility light-gradient {
   /* Base radial gradient */
   background: radial-gradient(circle at top, #e3d9c8 0%, #f0e9dd 100%);
