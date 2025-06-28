@@ -31,55 +31,6 @@ import {
 import { getCurrentUser } from "@/lib/client/appwrite";
 import { useToast } from "@/hooks/use-toast";
 
-// Metadata for the dashboard page
-export const metadata = {
-  title: "Dashboard - Sentelly | AI Dictionary Analytics & Settings",
-  description: "View your word search analytics, manage preferences, and track your learning progress with Sentelly's intelligent dictionary dashboard.",
-  keywords: [
-    "dictionary dashboard",
-    "word analytics",
-    "learning progress",
-    "AI dictionary stats",
-    "vocabulary tracking",
-    "pronunciation analytics",
-    "user settings",
-    "word search history"
-  ],
-  openGraph: {
-    title: "Sentelly Dashboard - Your AI Dictionary Analytics",
-    description: "Track your vocabulary learning journey with detailed analytics, pronunciation stats, and personalized settings.",
-    type: "website",
-    url: "https://sentelly.netlify.app/dashboard",
-    siteName: "Sentelly",
-    images: [
-      {
-        url: "https://sentelly.netlify.app/og-dashboard.png",
-        width: 1200,
-        height: 630,
-        alt: "Sentelly Dashboard - AI Dictionary Analytics",
-      },
-    ],
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "Sentelly Dashboard - AI Dictionary Analytics",
-    description: "Track your vocabulary learning with detailed word search analytics and pronunciation statistics.",
-    images: ["https://sentelly.netlify.app/og-dashboard.png"],
-    creator: "@sentelly",
-    site: "@sentelly",
-  },
-  robots: {
-    index: false, // Dashboard should not be indexed by search engines
-    follow: true,
-    noarchive: true,
-    nosnippet: true,
-    noimageindex: true,
-  },
-  alternates: {
-    canonical: "https://sentelly.netlify.app/dashboard",
-  },
-};
-
 interface UserStats {
   totalSearches: number;
   totalAudioGenerations: number;
@@ -304,7 +255,8 @@ export default function Dashboard() {
                   </div>
                   <div className="mt-1 flex items-center gap-2 text-white/60">
                     <Calendar className="h-4 w-4" />
-                    Member since {new Date(user.$createdAt).toLocaleDateString()}
+                    Member since{" "}
+                    {new Date(user.$createdAt).toLocaleDateString()}
                   </div>
                 </div>
               </div>
@@ -397,7 +349,9 @@ export default function Dashboard() {
                       <CardContent className="p-4">
                         <div className="flex items-center justify-between">
                           <div>
-                            <p className="text-sm text-white/60">Success Rate</p>
+                            <p className="text-sm text-white/60">
+                              Success Rate
+                            </p>
                             <p className="text-2xl font-bold text-white">
                               {stats.successRate.toFixed(1)}%
                             </p>
@@ -459,7 +413,9 @@ export default function Dashboard() {
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-2">
                             <Database className="h-4 w-4 text-blue-400" />
-                            <span className="text-white/60">Database Cache</span>
+                            <span className="text-white/60">
+                              Database Cache
+                            </span>
                           </div>
                           <span className="font-semibold text-white">
                             {stats.sourceBreakdown.database}
@@ -622,7 +578,8 @@ export default function Dashboard() {
                     <div className="space-y-0.5">
                       <Label className="text-white">Email Notifications</Label>
                       <p className="text-sm text-white/60">
-                        Receive email updates about new features and improvements
+                        Receive email updates about new features and
+                        improvements
                       </p>
                     </div>
                     <Switch
