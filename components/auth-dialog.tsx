@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { Loader2, LogIn, LogOut, UserPlus } from "lucide-react";
+import { Loader2, LogIn, LogOut, UserPlus, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -13,6 +13,13 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import {
   Form,
   FormControl,
@@ -25,6 +32,7 @@ import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { login, register, logout, getCurrentUser } from "@/lib/client/appwrite";
 import { trackActivity, PerformanceTracker } from "@/lib/utils/activity-tracker";
+import { useRouter } from "next/navigation";
 
 const formSchema = z.object({
   email: z.string().email("Invalid email address"),
@@ -34,6 +42,7 @@ const formSchema = z.object({
 
 export function AuthDialog() {
   console.log("AuthDialog component rendering");
+  const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [isSignUp, setIsSignUp] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
@@ -242,26 +251,46 @@ export function AuthDialog() {
   return (
     <div className="flex items-center gap-1 sm:gap-2">
       {user ? (
-        <>
-          <span className="hidden max-w-24 truncate text-xs text-white/80 sm:inline sm:max-w-32 sm:text-sm md:max-w-none">
-            Hello, {user.name || user.email}
-          </span>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleLogout}
-            disabled={isLoading}
-            className="h-7 rounded-full border-white/25 bg-white/10 px-2 text-xs text-white/80 hover:bg-white/20 hover:text-white sm:h-8 sm:px-3 sm:text-sm md:h-9"
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-7 rounded-full border-white/25 bg-white/10 px-2 text-xs text-white/80 hover:bg-white/20 hover:text-white sm:h-8 sm:px-3 sm:text-sm md:h-9"
+            >
+              <User className="mr-1 h-3 w-3 sm:h-4 sm:w-4" />
+              <span className="hidden max-w-24 truncate sm:inline sm:max-w-32 md:max-w-none">
+                {user.name || user.email}
+              </span>
+              <span className="sm:hidden">Menu</span>
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent 
+            align="end" 
+            className="bg-gray-300/20 backdrop-blur-2xl border border-white/50 text-xs sm:text-sm"
           >
-            {isLoading ? (
-              <Loader2 className="h-3 w-3 animate-spin sm:h-4 sm:w-4" />
-            ) : (
-              <LogOut className="mr-1 h-3 w-3 sm:h-4 sm:w-4" />
-            )}
-            <span className="xs:inline hidden sm:hidden md:inline">Logout</span>
-            <span className="xs:hidden sm:inline md:hidden">Out</span>
-          </Button>
-        </>
+            <DropdownMenuItem 
+              onClick={() => router.push("/dashboard")}
+              className="text-white/80 hover:text-white hover:bg-white/10 cursor-pointer"
+            >
+              <User className="mr-2 h-4 w-4" />
+              Dashboard
+            </DropdownMenuItem>
+            <DropdownMenuSeparator className="bg-white/20" />
+            <DropdownMenuItem 
+              onClick={handleLogout}
+              disabled={isLoading}
+              className="text-white/80 hover:text-white hover:bg-white/10 cursor-pointer"
+            >
+              {isLoading ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              ) : (
+                <LogOut className="mr-2 h-4 w-4" />
+              )}
+              Logout
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       ) : (
         <div>
           <Button
