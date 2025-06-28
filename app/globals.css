@@ -323,6 +323,107 @@
     }
   }
 
+  /* Luxury Loading Animations */
+  @keyframes compass-rotate {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  @keyframes compass-glow {
+    0%, 100% {
+      opacity: 0.6;
+      transform: scale(1);
+    }
+    50% {
+      opacity: 1;
+      transform: scale(1.02);
+    }
+  }
+
+  @keyframes refraction-sweep {
+    0% {
+      transform: translateX(-50%) translateY(-4px) rotate(-45deg);
+      opacity: 0;
+    }
+    10% {
+      opacity: 1;
+    }
+    90% {
+      opacity: 1;
+    }
+    100% {
+      transform: translateX(-50%) translateY(-4px) rotate(315deg);
+      opacity: 0;
+    }
+  }
+
+  @keyframes center-pulse {
+    0%, 100% {
+      transform: scale(1);
+      opacity: 0.8;
+    }
+    50% {
+      transform: scale(1.1);
+      opacity: 1;
+    }
+  }
+
+  @keyframes breathing {
+    0%, 100% {
+      opacity: 0.02;
+    }
+    50% {
+      opacity: 0.05;
+    }
+  }
+
+  @keyframes float {
+    0%, 100% {
+      transform: translateY(0px) translateX(0px);
+      opacity: 0.2;
+    }
+    25% {
+      transform: translateY(-10px) translateX(5px);
+      opacity: 0.4;
+    }
+    50% {
+      transform: translateY(-5px) translateX(-3px);
+      opacity: 0.6;
+    }
+    75% {
+      transform: translateY(-15px) translateX(2px);
+      opacity: 0.3;
+    }
+  }
+
+  .animate-compass-rotate {
+    animation: compass-rotate 10s linear infinite;
+  }
+
+  .animate-compass-glow {
+    animation: compass-glow 6s ease-in-out infinite;
+  }
+
+  .animate-refraction-sweep {
+    animation: refraction-sweep 8s ease-in-out infinite;
+  }
+
+  .animate-center-pulse {
+    animation: center-pulse 4s ease-in-out infinite;
+  }
+
+  .animate-breathing {
+    animation: breathing 18s ease-in-out infinite;
+  }
+
+  .animate-float {
+    animation: float 8s ease-in-out infinite;
+  }
+
   /* Custom responsive breakpoints */
   @screen xs {
     /* 475px and up */
@@ -336,5 +437,19 @@
   }
   .xs\:hidden {
     display: none;
+  }
+}
+
+/* Reduce motion for accessibility */
+@media (prefers-reduced-motion: reduce) {
+  .animate-compass-rotate,
+  .animate-compass-glow,
+  .animate-refraction-sweep,
+  .animate-center-pulse,
+  .animate-breathing,
+  .animate-float {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 }

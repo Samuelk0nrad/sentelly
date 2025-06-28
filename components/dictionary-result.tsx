@@ -7,6 +7,7 @@ import { AlertCircle, Volume2, Database, Sparkles } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { LuxuryLoading } from "@/components/ui/luxury-loading";
 import {
   trackActivity,
   PerformanceTracker,
@@ -125,25 +126,7 @@ export default function DictionaryResult({
   };
 
   if (loading) {
-    return (
-      <Card className="animate-fade-in w-full overflow-hidden rounded-xl border-0 bg-white/5 backdrop-blur-lg sm:rounded-2xl">
-        <CardHeader className="p-3 sm:p-4 md:p-6">
-          <Skeleton className="mb-2 h-4 w-1/3 bg-white/10 sm:h-6 md:h-8" />
-          <Skeleton className="h-3 w-2/3 bg-white/10 sm:h-3 md:h-4" />
-        </CardHeader>
-        <CardContent className="space-y-2 p-3 sm:space-y-3 sm:p-4 md:space-y-4 md:p-6">
-          <Skeleton className="h-3 w-full bg-white/10 sm:h-3 md:h-4" />
-          <Skeleton className="h-3 w-full bg-white/10 sm:h-3 md:h-4" />
-          <Skeleton className="h-3 w-3/4 bg-white/10 sm:h-3 md:h-4" />
-
-          <div className="pt-2 sm:pt-3 md:pt-4">
-            <Skeleton className="mb-2 h-3 w-1/4 bg-white/10 sm:h-4 md:h-5" />
-            <Skeleton className="h-3 w-full bg-white/10 sm:h-3 md:h-4" />
-            <Skeleton className="mt-1 h-3 w-5/6 bg-white/10 sm:h-3 md:h-4" />
-          </div>
-        </CardContent>
-      </Card>
-    );
+    return <LuxuryLoading message="Refining Language..." />;
   }
 
   if (error) {
