@@ -178,6 +178,7 @@ export default function DictionaryResult({
                 <span className="text-white/90">{result.definition}</span>
               </p>
             </div>
+            <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
               {/* Phonetic and audio controls */}
               {result.phonetic && (
                 <div className="flex items-center gap-2 sm:gap-3">
