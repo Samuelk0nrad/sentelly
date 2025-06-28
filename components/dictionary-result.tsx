@@ -20,6 +20,10 @@ interface DictionaryResponse {
   usage: string;
   pronunciation_id?: string;
   source?: "database" | "gemini";
+  originalWord?: string;
+  suggestedWord?: string;
+  alternativeSuggestions?: string[];
+  isCorrectionSuggested?: boolean;
 }
 
 interface DictionaryResultProps {

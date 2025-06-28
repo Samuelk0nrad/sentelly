@@ -51,6 +51,10 @@ export interface WordDocument {
   synonyms?: string[];
   usage: string;
   pronunciation_id?: string;
+  originalWord?: string;
+  suggestedWord?: string;
+  alternativeSuggestions?: string[];
+  isCorrectionSuggested?: boolean;
   $createdAt?: string;
   $updatedAt?: string;
 }
@@ -60,7 +64,7 @@ export interface ActivityDocument {
   $id?: string;
   user_id?: string; // null for anonymous users
   user_email?: string; // for easier identification
-  activity_type: "word_search" | "audio_generation" | "user_registration" | "user_login";
+  activity_type: "word_search" | "audio_generation" | "user_registration" | "user_login" | "spelling_correction_dismissed" | "spelling_correction_accepted";
   word_searched?: string;
   response_source: "database" | "gemini" | "cache" | "error";
   tokens_used?: number;
@@ -74,6 +78,10 @@ export interface ActivityDocument {
     gemini_model?: string;
     audio_duration_ms?: number;
     cache_hit?: boolean;
+    original_word?: string;
+    suggested_word?: string;
+    clicked_word?: string;
+    correction_source?: string;
     [key: string]: any;
   };
   $createdAt?: string;

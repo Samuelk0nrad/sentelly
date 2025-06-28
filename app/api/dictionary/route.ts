@@ -37,7 +37,85 @@ For example, for the word "developer":
 }
 `;
 
+const SPELLING_CORRECTION_PROMPT = `You are a spelling correction assistant. Analyze the given word and determine if it's misspelled.
+CRITICAL: You must ONLY return a valid JSON object with no additional text, markdown, or formatting.
+The response must be a single JSON object in this exact format:
+{
+  "is_misspelling": boolean,
+  "suggested_word": "the most likely correct spelling (empty string if no correction needed)",
+  "alternative_suggestions": ["array", "of", "other", "possible", "corrections"]
+}
+
+Rules:
+- If the word is correctly spelled, return is_misspelling: false and empty suggested_word
+- If the word is misspelled, return is_misspelling: true with the most likely correction as suggested_word
+- Provide up to 3-5 alternative suggestions in alternative_suggestions array
+- Only suggest real English words
+- Consider common typos, missing letters, extra letters, and letter swaps
+- If you're unsure, err on the side of assuming the word is correct
+
+Examples:
+For "recieve": {"is_misspelling": true, "suggested_word": "receive", "alternative_suggestions": ["receive"]}
+For "hello": {"is_misspelling": false, "suggested_word": "", "alternative_suggestions": []}
+For "teh": {"is_misspelling": true, "suggested_word": "the", "alternative_suggestions": ["tea", "ten"]}
+`;
+
 const ai = new GoogleGenAI({ apiKey: process.env.GOOGLE_API_KEY! });
+
+async function getSpellingSuggestions(word: string): Promise<{
+  isMisspelling: boolean;
+  suggestedWord: string;
+  alternativeSuggestions: string[];
+}> {
+  try {
+    const prompt = `${SPELLING_CORRECTION_PROMPT}\n\nAnalyze this word: ${word}`;
+
+    const response = await ai.models.generateContent({
+      model: "gemini-2.0-flash-lite",
+      contents: prompt,
+      config: {
+        responseMimeType: "application/json",
+        responseSchema: {
+          type: Type.OBJECT,
+          properties: {
+            is_misspelling: {
+              type: Type.BOOLEAN,
+            },
+            suggested_word: {
+              type: Type.STRING,
+            },
+            alternative_suggestions: {
+              type: Type.ARRAY,
+              items: {
+                type: Type.STRING,
+              },
+            },
+          },
+          propertyOrdering: [
+            "is_misspelling",
+            "suggested_word",
+            "alternative_suggestions",
+          ],
+        },
+      },
+    });
+
+    const data = JSON.parse(response.text || "{}");
+    
+    return {
+      isMisspelling: data.is_misspelling || false,
+      suggestedWord: data.suggested_word || "",
+      alternativeSuggestions: data.alternative_suggestions || [],
+    };
+  } catch (error) {
+    console.error("Spelling correction error:", error);
+    return {
+      isMisspelling: false,
+      suggestedWord: "",
+      alternativeSuggestions: [],
+    };
+  }
+}
 
 async function getDefinitionFromGemini(word: string): Promise<{ wordDocument: WordDocument; tokensUsed: number }> {
   try {
@@ -117,8 +195,9 @@ export async function GET(request: Request) {
   const performanceTracker = new PerformanceTracker();
   const { searchParams } = new URL(request.url);
   const word = searchParams.get("word");
+  const ignoreCorrection = searchParams.get("ignoreCorrection") === "true";
 
-  // Extract user info from headers or query params (you might want to use JWT tokens)
+  // Extract user info from headers or query params
   const userId = searchParams.get("user_id") || null;
   const userEmail = searchParams.get("user_email") || null;
 
@@ -143,46 +222,85 @@ export async function GET(request: Request) {
   }
 
   try {
+    let originalWord = word;
+    let wordToSearch = word;
+    let spellingCorrection = null;
+
+    // Check for spelling corrections if not ignored
+    if (!ignoreCorrection) {
+      spellingCorrection = await getSpellingSuggestions(word);
+      
+      if (spellingCorrection.isMisspelling && spellingCorrection.suggestedWord) {
+        wordToSearch = spellingCorrection.suggestedWord;
+      }
+    }
+
     // First, check if word exists in database
-    const existingWord = await getWordFromDatabase(word);
+    const existingWord = await getWordFromDatabase(wordToSearch);
 
     if (existingWord) {
       const responseTime = performanceTracker.end();
+      
+      // Prepare response with spelling correction info
+      const response = {
+        ...existingWord,
+        source: "database",
+        ...(spellingCorrection?.isMisspelling && {
+          originalWord,
+          suggestedWord: spellingCorrection.suggestedWord,
+          alternativeSuggestions: spellingCorrection.alternativeSuggestions,
+          isCorrectionSuggested: true,
+        }),
+      };
       
       // Track successful database hit
       await trackActivity({
         user_id: userId,
         user_email: userEmail,
         activity_type: "word_search",
-        word_searched: word,
+        word_searched: wordToSearch,
         response_source: "database",
         response_time_ms: responseTime,
         success: true,
         metadata: {
           cache_hit: true,
           word_id: existingWord.$id,
+          ...(spellingCorrection?.isMisspelling && {
+            original_word: originalWord,
+            suggested_word: spellingCorrection.suggestedWord,
+            correction_source: "gemini",
+          }),
         },
       });
 
-      return Response.json({
-        ...existingWord,
-        source: "database",
-      });
+      return Response.json(response);
     }
 
     // If not in database, get from Gemini and save
-    const { wordDocument: definition, tokensUsed } = await getDefinitionFromGemini(word);
+    const { wordDocument: definition, tokensUsed } = await getDefinitionFromGemini(wordToSearch);
 
     // Save to database
     const savedWord = await saveWordToDatabase(definition);
     const responseTime = performanceTracker.end();
+
+    // Prepare response with spelling correction info
+    const response = {
+      ...(savedWord || definition),
+      source: "gemini",
+      ...(spellingCorrection?.isMisspelling && {
+        originalWord,
+        suggestedWord: spellingCorrection.suggestedWord,
+        alternativeSuggestions: spellingCorrection.alternativeSuggestions,
+        isCorrectionSuggested: true,
+      }),
+    };
 
     // Track successful Gemini API call
     await trackActivity({
       user_id: userId,
       user_email: userEmail,
       activity_type: "word_search",
-      word_searched: word,
+      word_searched: wordToSearch,
       response_source: "gemini",
       tokens_used: tokensUsed,
       response_time_ms: responseTime,
@@ -192,20 +310,15 @@ export async function GET(request: Request) {
         cache_hit: false,
         saved_to_database: !!savedWord,
         word_id: savedWord?.$id,
+        ...(spellingCorrection?.isMisspelling && {
+          original_word: originalWord,
+          suggested_word: spellingCorrection.suggestedWord,
+          correction_source: "gemini",
+        }),
       },
     });
 
-    if (savedWord) {
-      return Response.json({
-        ...savedWord,
-        source: "gemini",
-      });
-    } else {
-      return Response.json({
-        ...definition,
-        source: "gemini",
-      });
-    }
+    return Response.json(response);
   } catch (error) {
     console.error("API error:", error);
     const responseTime = performanceTracker.end();

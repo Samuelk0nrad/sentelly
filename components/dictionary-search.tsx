@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { SearchIcon } from "lucide-react";
 import DictionaryResult from "@/components/dictionary-result";
+import SpellingSuggestions from "@/components/spelling-suggestions";
 import { trackActivity, PerformanceTracker } from "@/lib/utils/activity-tracker";
 import { getCurrentUser } from "@/lib/client/appwrite";
 
@@ -20,6 +21,10 @@ interface DictionaryResponse {
   usage: string;
   pronunciation_id?: string;
   source?: "database" | "gemini";
+  originalWord?: string;
+  suggestedWord?: string;
+  alternativeSuggestions?: string[];
+  isCorrectionSuggested?: boolean;
 }
 
 export default function DictionarySearch() {
@@ -44,7 +49,7 @@ export default function DictionarySearch() {
   }, []);
 
   // Perform the actual API call
-  const performApiCall = async (word: string) => {
+  const performApiCall = async (word: string, ignoreCorrection: boolean = false) => {
     if (!word.trim()) {
       setResult(null);
       setError(null);
@@ -62,6 +67,9 @@ export default function DictionarySearch() {
       // Build URL with user info for server-side tracking
       const url = new URL(`/api/dictionary`, window.location.origin);
       url.searchParams.set("word", word);
+      if (ignoreCorrection) {
+        url.searchParams.set("ignoreCorrection", "true");
+      }
       if (currentUser?.id) {
         url.searchParams.set("user_id", currentUser.id);
       }
@@ -84,13 +92,18 @@ export default function DictionarySearch() {
         user_id: currentUser?.id,
         user_email: currentUser?.email,
         activity_type: "word_search",
-        word_searched: word,
+        word_searched: data.word || word,
         response_source: data.source || "unknown",
         response_time_ms: responseTime,
         success: true,
         metadata: {
           client_side_tracking: true,
           result_id: data.$id,
+          ignore_correction: ignoreCorrection,
+          ...(data.isCorrectionSuggested && {
+            original_word: data.originalWord,
+            suggested_word: data.suggestedWord,
+          }),
         },
       });
 
@@ -113,6 +126,7 @@ export default function DictionarySearch() {
         error_message: errorMessage,
         metadata: {
           client_side_tracking: true,
+          ignore_correction: ignoreCorrection,
         },
       });
     } finally {
@@ -123,9 +137,11 @@ export default function DictionarySearch() {
   // Watch for URL parameter changes and trigger API call
   useEffect(() => {
     const wordFromUrl = searchParams.get("word");
+    const ignoreCorrectionFromUrl = searchParams.get("ignoreCorrection") === "true";
+    
     if (wordFromUrl) {
       setSearchTerm(wordFromUrl);
-      performApiCall(wordFromUrl);
+      performApiCall(wordFromUrl, ignoreCorrectionFromUrl);
     } else {
       // If no word parameter, reset everything
       setSearchTerm("");
@@ -158,6 +174,36 @@ export default function DictionarySearch() {
     // If input is cleared, clear the URL parameter
     if (!value.trim()) {
       router.push("/", { scroll: false });
+    }
+  };
+
+  // Handle word selection from spelling suggestions
+  const handleWordSelect = (selectedWord: string, isOriginal: boolean = false) => {
+    const params = new URLSearchParams();
+    params.set("word", selectedWord);
+    
+    if (isOriginal) {
+      params.set("ignoreCorrection", "true");
+    }
+    
+    router.push(`/?${params.toString()}`, { scroll: false });
+
+    // Track the selection
+    if (result?.isCorrectionSuggested) {
+      trackActivity({
+        user_id: currentUser?.id,
+        user_email: currentUser?.email,
+        activity_type: isOriginal ? "spelling_correction_dismissed" : "spelling_correction_accepted",
+        word_searched: selectedWord,
+        response_source: "database",
+        response_time_ms: 0,
+        success: true,
+        metadata: {
+          original_word: result.originalWord,
+          clicked_word: selectedWord,
+          is_original_word: isOriginal,
+        },
+      });
     }
   };
 
@@ -208,6 +254,17 @@ export default function DictionarySearch() {
               : "w-0 opacity-0"
           }`}
         >
+          {/* Spelling Suggestions Row */}
+          {result?.isCorrectionSuggested && (
+            <SpellingSuggestions
+              originalWord={result.originalWord!}
+              suggestedWord={result.suggestedWord!}
+              alternativeSuggestions={result.alternativeSuggestions || []}
+              onWordSelect={handleWordSelect}
+            />
+          )}
+          
+          {/* Dictionary Result */}
           <DictionaryResult 
             result={result} 
             loading={loading} 
