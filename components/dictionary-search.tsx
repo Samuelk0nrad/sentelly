@@ -45,7 +45,15 @@ export default function DictionarySearch() {
     const fetchUser = async () => {
       const { success, data } = await getCurrentUser();
       if (success) {
+        console.log("DictionarySearch: User data received:", {
+          userId: data?.$id,
+          userEmail: data?.email,
+          userName: data?.name,
+          fullUserObject: data,
+        });
         setCurrentUser(data);
+      } else {
+        console.log("DictionarySearch: Failed to get user data");
       }
     };
     fetchUser();
@@ -76,8 +84,8 @@ export default function DictionarySearch() {
       if (ignoreCorrection) {
         url.searchParams.set("ignoreCorrection", "true");
       }
-      if (currentUser?.id) {
-        url.searchParams.set("user_id", currentUser.id);
+      if (currentUser?.$id) {
+        url.searchParams.set("user_id", currentUser.$id);
       }
       if (currentUser?.email) {
         url.searchParams.set("user_email", currentUser.email);
@@ -95,7 +103,7 @@ export default function DictionarySearch() {
 
       // Client-side activity tracking (backup/additional tracking)
       await trackActivity({
-        user_id: currentUser?.id,
+        user_id: currentUser?.$id,
         user_email: currentUser?.email,
         activity_type: "word_search",
         word_searched: data.word || word,
@@ -122,7 +130,7 @@ export default function DictionarySearch() {
 
       // Track failed search
       await trackActivity({
-        user_id: currentUser?.id,
+        user_id: currentUser?.$id,
         user_email: currentUser?.email,
         activity_type: "word_search",
         word_searched: word,
@@ -201,7 +209,7 @@ export default function DictionarySearch() {
     // Track the selection
     if (result?.isCorrectionSuggested) {
       trackActivity({
-        user_id: currentUser?.id,
+        user_id: currentUser?.$id,
         user_email: currentUser?.email,
         activity_type: isOriginal
           ? "spelling_correction_dismissed"

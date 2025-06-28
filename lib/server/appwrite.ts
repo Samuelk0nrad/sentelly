@@ -215,7 +215,9 @@ export const logActivity = async (
       {
         ...activityData,
         word_searched: activityData.word_searched?.toLowerCase(),
-        metadata: activityData.metadata || {},
+        metadata: activityData.metadata
+          ? JSON.stringify(activityData.metadata).slice(0, 200)
+          : "",
       },
     );
     return document as unknown as ActivityDocument;

@@ -5,10 +5,10 @@ import {
   WordDocument,
 } from "@/lib/server/appwrite";
 import {
-  trackActivity,
   PerformanceTracker,
   extractTokenUsage,
 } from "@/lib/utils/activity-tracker";
+import { trackActivityServer } from "@/lib/server/activity-tracker";
 
 const SYSTEM_PROMPT = `You are a dictionary API that provides detailed word definitions.
 CRITICAL: You must ONLY return a valid JSON object with no additional text, markdown, or formatting.
@@ -204,22 +204,25 @@ export async function GET(request: Request) {
   const ignoreCorrection = searchParams.get("ignoreCorrection") === "true";
 
   // Extract user info from headers or query params
-  const userId = searchParams.get("user_id") || null;
-  const userEmail = searchParams.get("user_email") || null;
+  const userId = searchParams.get("user_id") || undefined;
+  const userEmail = searchParams.get("user_email") || undefined;
 
   if (!word) {
     const responseTime = performanceTracker.end();
 
     // Track failed activity
-    await trackActivity({
-      user_id: userId,
-      user_email: userEmail,
-      activity_type: "word_search",
-      response_source: "error",
-      response_time: responseTime,
-      success: false,
-      error_message: "Word parameter is required",
-    });
+    await trackActivityServer(
+      {
+        user_id: userId,
+        user_email: userEmail,
+        activity_type: "word_search",
+        response_source: "error",
+        response_time: responseTime,
+        success: false,
+        error_message: "Word parameter is required",
+      },
+      request,
+    );
 
     return Response.json(
       { error: "Word parameter is required" },
@@ -263,24 +266,27 @@ export async function GET(request: Request) {
       };
 
       // Track successful database hit
-      await trackActivity({
-        user_id: userId,
-        user_email: userEmail,
-        activity_type: "word_search",
-        word_searched: wordToSearch,
-        response_source: "database",
-        response_time: responseTime,
-        success: true,
-        metadata: {
-          cache_hit: true,
-          word_id: existingWord.$id,
-          ...(spellingCorrection?.isMisspelling && {
-            original_word: originalWord,
-            suggested_word: spellingCorrection.suggestedWord,
-            correction_source: "gemini",
-          }),
+      await trackActivityServer(
+        {
+          user_id: userId,
+          user_email: userEmail,
+          activity_type: "word_search",
+          word_searched: wordToSearch,
+          response_source: "database",
+          response_time: responseTime,
+          success: true,
+          metadata: {
+            cache_hit: true,
+            word_id: existingWord.$id,
+            ...(spellingCorrection?.isMisspelling && {
+              original_word: originalWord,
+              suggested_word: spellingCorrection.suggestedWord,
+              correction_source: "gemini",
+            }),
+          },
         },
-      });
+        request,
+      );
 
       return Response.json(response);
     }
@@ -306,27 +312,30 @@ export async function GET(request: Request) {
     };
 
     // Track successful Gemini API call
-    await trackActivity({
-      user_id: userId,
-      user_email: userEmail,
-      activity_type: "word_search",
-      word_searched: wordToSearch,
-      response_source: "gemini",
-      tokens_used: tokensUsed,
-      response_time: responseTime,
-      success: true,
-      metadata: {
-        gemini_model: "gemini-2.0-flash-lite",
-        cache_hit: false,
-        saved_to_database: !!savedWord,
-        word_id: savedWord?.$id,
-        ...(spellingCorrection?.isMisspelling && {
-          original_word: originalWord,
-          suggested_word: spellingCorrection.suggestedWord,
-          correction_source: "gemini",
-        }),
+    await trackActivityServer(
+      {
+        user_id: userId,
+        user_email: userEmail,
+        activity_type: "word_search",
+        word_searched: wordToSearch,
+        response_source: "gemini",
+        tokens_used: tokensUsed,
+        response_time: responseTime,
+        success: true,
+        metadata: {
+          gemini_model: "gemini-2.0-flash-lite",
+          cache_hit: false,
+          saved_to_database: !!savedWord,
+          word_id: savedWord?.$id,
+          ...(spellingCorrection?.isMisspelling && {
+            original_word: originalWord,
+            suggested_word: spellingCorrection.suggestedWord,
+            correction_source: "gemini",
+          }),
+        },
       },
-    });
+      request,
+    );
 
     return Response.json(response);
   } catch (error) {
@@ -334,20 +343,23 @@ export async function GET(request: Request) {
     const responseTime = performanceTracker.end();
 
     // Track failed activity
-    await trackActivity({
-      user_id: userId,
-      user_email: userEmail,
-      activity_type: "word_search",
-      word_searched: word,
-      response_source: "error",
-      response_time: responseTime,
-      success: false,
-      error_message: error instanceof Error ? error.message : "Unknown error",
-      metadata: {
-        error_type:
-          error instanceof Error ? error.constructor.name : "UnknownError",
+    await trackActivityServer(
+      {
+        user_id: userId,
+        user_email: userEmail,
+        activity_type: "word_search",
+        word_searched: word,
+        response_source: "error",
+        response_time: responseTime,
+        success: false,
+        error_message: error instanceof Error ? error.message : "Unknown error",
+        metadata: {
+          error_type:
+            error instanceof Error ? error.constructor.name : "UnknownError",
+        },
       },
-    });
+      request,
+    );
 
     return Response.json(
       { error: "Failed to get definition" },

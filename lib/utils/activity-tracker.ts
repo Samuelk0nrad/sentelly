@@ -1,5 +1,3 @@
-import { ActivityDocument } from "@/lib/server/appwrite";
-
 // Client-side activity tracking utilities
 export interface ActivityTrackingData {
   user_id?: string;
@@ -8,7 +6,9 @@ export interface ActivityTrackingData {
     | "word_search"
     | "audio_generation"
     | "user_registration"
-    | "user_login";
+    | "user_login"
+    | "spelling_correction_accepted"
+    | "spelling_correction_dismissed";
   word_searched?: string;
   response_source: "database" | "gemini" | "cache" | "error";
   tokens_used?: number;
@@ -16,6 +16,7 @@ export interface ActivityTrackingData {
   success: boolean;
   error_message?: string;
   session_id?: string;
+  user_agent?: string;
   metadata?: {
     gemini_model?: string;
     audio_duration_ms?: number;
@@ -46,9 +47,14 @@ export const trackActivity = async (
   data: ActivityTrackingData,
 ): Promise<void> => {
   try {
+    // Only track on client-side to avoid server-side fetch issues
+    if (typeof window === "undefined") {
+      console.log("Skipping activity tracking on server-side");
+      return;
+    }
+
     const sessionId = getSessionId();
-    const userAgent =
-      typeof window !== "undefined" ? window.navigator.userAgent : "";
+    const userAgent = window.navigator.userAgent;
 
     const activityData = {
       ...data,

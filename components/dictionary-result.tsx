@@ -54,8 +54,8 @@ export default function DictionaryResult({
       // Build URL with user info for server-side tracking
       const url = new URL(`/api/tts`, window.location.origin);
       url.searchParams.set("text", word);
-      if (currentUser?.id) {
-        url.searchParams.set("user_id", currentUser.id);
+      if (currentUser?.$id) {
+        url.searchParams.set("user_id", currentUser.$id);
       }
       if (currentUser?.email) {
         url.searchParams.set("user_email", currentUser.email);
@@ -88,7 +88,7 @@ export default function DictionaryResult({
 
       // Track successful audio playback
       await trackActivity({
-        user_id: currentUser?.id,
+        user_id: currentUser?.$id,
         user_email: currentUser?.email,
         activity_type: "audio_generation",
         word_searched: word,
@@ -109,7 +109,7 @@ export default function DictionaryResult({
 
       // Track failed audio playback
       await trackActivity({
-        user_id: currentUser?.id,
+        user_id: currentUser?.$id,
         user_email: currentUser?.email,
         activity_type: "audio_generation",
         word_searched: word,

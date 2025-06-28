@@ -223,7 +223,7 @@ export function AuthDialog() {
 
         // Track successful logout
         await trackActivity({
-          user_id: user?.id,
+          user_id: user?.$id,
           user_email: user?.email,
           activity_type: "user_login", // Using login type for logout as well
           response_source: "database",

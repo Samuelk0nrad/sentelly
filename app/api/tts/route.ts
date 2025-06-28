@@ -5,10 +5,8 @@ import {
   saveAudioToStorage,
   getAudioData,
 } from "@/lib/server/appwrite";
-import {
-  trackActivity,
-  PerformanceTracker,
-} from "@/lib/utils/activity-tracker";
+import { PerformanceTracker } from "@/lib/utils/activity-tracker";
+import { trackActivityServer } from "@/lib/server/activity-tracker";
 
 async function getAudioFromElevenLabs(text: string): Promise<ArrayBuffer> {
   const VOICE_ID = "21m00Tcm4TlvDq8ikWAM"; // Default voice ID (Rachel)
@@ -50,21 +48,24 @@ export async function GET(request: Request) {
   const text = searchParams.get("text");
 
   // Extract user info
-  const userId = searchParams.get("user_id") || null;
-  const userEmail = searchParams.get("user_email") || null;
+  const userId = searchParams.get("user_id") || undefined;
+  const userEmail = searchParams.get("user_email") || undefined;
 
   if (!text) {
     const responseTime = performanceTracker.end();
 
-    await trackActivity({
-      user_id: userId,
-      user_email: userEmail,
-      activity_type: "audio_generation",
-      response_source: "error",
-      response_time: responseTime,
-      success: false,
-      error_message: "Text parameter is required",
-    });
+    await trackActivityServer(
+      {
+        user_id: userId,
+        user_email: userEmail,
+        activity_type: "audio_generation",
+        response_source: "error",
+        response_time: responseTime,
+        success: false,
+        error_message: "Text parameter is required",
+      },
+      request,
+    );
 
     return NextResponse.json(
       { error: "Text parameter is required" },
@@ -83,20 +84,23 @@ export async function GET(request: Request) {
         if (audioData) {
           const responseTime = performanceTracker.end();
 
-          await trackActivity({
-            user_id: userId,
-            user_email: userEmail,
-            activity_type: "audio_generation",
-            word_searched: text,
-            response_source: "database",
-            response_time: responseTime,
-            success: true,
-            metadata: {
-              cache_hit: true,
-              audio_file_id: existingWord.pronunciation_id,
-              word_id: existingWord.$id,
+          await trackActivityServer(
+            {
+              user_id: userId,
+              user_email: userEmail,
+              activity_type: "audio_generation",
+              word_searched: text,
+              response_source: "database",
+              response_time: responseTime,
+              success: true,
+              metadata: {
+                cache_hit: true,
+                audio_file_id: existingWord.pronunciation_id,
+                word_id: existingWord.$id,
+              },
             },
-          });
+            request,
+          );
 
           return new NextResponse(audioData, {
             headers: {
@@ -151,23 +155,26 @@ export async function GET(request: Request) {
     }
 
     // Track successful audio generation
-    await trackActivity({
-      user_id: userId,
-      user_email: userEmail,
-      activity_type: "audio_generation",
-      word_searched: text,
-      response_source: "gemini", // ElevenLabs in this case, but using gemini as external API
-      response_time: responseTime,
-      success: true,
-      metadata: {
-        cache_hit: false,
-        audio_provider: "elevenlabs",
-        voice_id: "21m00Tcm4TlvDq8ikWAM",
-        audio_size_bytes: audioBuffer.byteLength,
-        saved_to_storage: !!existingWord,
-        word_id: existingWord?.$id,
+    await trackActivityServer(
+      {
+        user_id: userId,
+        user_email: userEmail,
+        activity_type: "audio_generation",
+        word_searched: text,
+        response_source: "gemini", // ElevenLabs in this case, but using gemini as external API
+        response_time: responseTime,
+        success: true,
+        metadata: {
+          cache_hit: false,
+          audio_provider: "elevenlabs",
+          voice_id: "21m00Tcm4TlvDq8ikWAM",
+          audio_size_bytes: audioBuffer.byteLength,
+          saved_to_storage: !!existingWord,
+          word_id: existingWord?.$id,
+        },
       },
-    });
+      request,
+    );
 
     return new NextResponse(audioBuffer, {
       headers: {
@@ -185,20 +192,23 @@ export async function GET(request: Request) {
 
     const responseTime = performanceTracker.end();
 
-    await trackActivity({
-      user_id: userId,
-      user_email: userEmail,
-      activity_type: "audio_generation",
-      word_searched: text,
-      response_source: "error",
-      response_time: responseTime,
-      success: false,
-      error_message: error instanceof Error ? error.message : "Unknown error",
-      metadata: {
-        error_type:
-          error instanceof Error ? error.constructor.name : "UnknownError",
+    await trackActivityServer(
+      {
+        user_id: userId,
+        user_email: userEmail,
+        activity_type: "audio_generation",
+        word_searched: text,
+        response_source: "error",
+        response_time: responseTime,
+        success: false,
+        error_message: error instanceof Error ? error.message : "Unknown error",
+        metadata: {
+          error_type:
+            error instanceof Error ? error.constructor.name : "UnknownError",
+        },
       },
-    });
+      request,
+    );
 
     return NextResponse.json(
       { error: "Failed to generate speech" },

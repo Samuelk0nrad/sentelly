@@ -85,11 +85,17 @@ export default function Dashboard() {
           return;
         }
         setUser(data);
+        console.log("Dashboard: User data received:", {
+          userId: data.$id,
+          userEmail: data.email,
+          userName: data.name,
+          fullUserObject: data,
+        });
 
         // Fetch user statistics
-        const statsResponse = await fetch(
-          `/api/user-stats?user_id=${data.$id}`,
-        );
+        const statsUrl = `/api/user-stats?user_id=${data.$id}`;
+        console.log("Dashboard: Fetching stats from:", statsUrl);
+        const statsResponse = await fetch(statsUrl);
         if (statsResponse.ok) {
           const statsData = await statsResponse.json();
           setStats(statsData.stats);
