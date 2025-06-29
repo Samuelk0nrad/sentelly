@@ -7,7 +7,6 @@ import { AlertCircle, Volume2, Database, Sparkles } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { LuxuryLoading } from "@/components/ui/luxury-loading";
 import {
   trackActivity,
   PerformanceTracker,
@@ -35,6 +34,54 @@ interface DictionaryResultProps {
   loading: boolean;
   error: string | null;
   currentUser?: any;
+}
+
+// Simple loading skeleton for API responses
+function DictionaryLoadingSkeleton() {
+  return (
+    <Card className="animate-fade-in w-full overflow-hidden rounded-xl border border-white/50 bg-gray-300/20 backdrop-blur-2xl sm:rounded-2xl">
+      <CardHeader className="relative p-3 backdrop-blur-sm sm:p-4 md:p-6">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:gap-3 md:gap-4">
+          <div className="flex-1 space-y-2">
+            <Skeleton className="h-4 w-16 bg-white/20" />
+            <Skeleton className="h-8 w-32 bg-white/20" />
+            <Skeleton className="h-4 w-full bg-white/20" />
+          </div>
+          <div className="flex items-center gap-2">
+            <Skeleton className="h-4 w-20 bg-white/20" />
+            <Skeleton className="h-6 w-6 rounded-full bg-white/20" />
+          </div>
+        </div>
+      </CardHeader>
+      <CardContent className="space-y-3 p-3 sm:space-y-4 sm:p-4 md:space-y-6 md:p-6">
+        {/* Examples skeleton */}
+        <div className="space-y-2">
+          <Skeleton className="h-4 w-20 bg-white/20" />
+          <div className="space-y-2">
+            <Skeleton className="h-12 w-full rounded-lg bg-white/10" />
+            <Skeleton className="h-12 w-full rounded-lg bg-white/10" />
+          </div>
+        </div>
+        
+        {/* Usage skeleton */}
+        <div className="space-y-2">
+          <Skeleton className="h-4 w-16 bg-white/20" />
+          <Skeleton className="h-16 w-full rounded-lg bg-white/10" />
+        </div>
+        
+        {/* Synonyms skeleton */}
+        <div className="space-y-2">
+          <Skeleton className="h-4 w-20 bg-white/20" />
+          <div className="flex flex-wrap gap-2">
+            <Skeleton className="h-6 w-16 rounded-full bg-white/10" />
+            <Skeleton className="h-6 w-20 rounded-full bg-white/10" />
+            <Skeleton className="h-6 w-14 rounded-full bg-white/10" />
+            <Skeleton className="h-6 w-18 rounded-full bg-white/10" />
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
 }
 
 export default function DictionaryResult({
@@ -126,7 +173,7 @@ export default function DictionaryResult({
   };
 
   if (loading) {
-    return <LuxuryLoading message="Refining Language..." />;
+    return <DictionaryLoadingSkeleton />;
   }
 
   if (error) {
