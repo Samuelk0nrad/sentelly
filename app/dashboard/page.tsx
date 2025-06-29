@@ -256,7 +256,7 @@ export default function Dashboard() {
                   <div className="mt-1 flex items-center gap-2 text-white/60">
                     <Calendar className="h-4 w-4" />
                     Member since{" "}
-                    {new Date(user.$createdAt).toLocaleDateString()}
+                    {new Date(user.$createdAt).toLocaleDateString("en-US")}
                   </div>
                 </div>
               </div>
@@ -616,7 +616,7 @@ export default function Dashboard() {
                     <div>
                       <Label className="text-white/60">Member Since</Label>
                       <p className="text-white">
-                        {new Date(user.$createdAt).toLocaleDateString()}
+                        {new Date(user.$createdAt).toLocaleDateString("en-US")}
                       </p>
                     </div>
                   </div>
