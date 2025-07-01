@@ -1,11 +1,11 @@
-# Sentelly 🎯
+# Sentelly
 
 **AI-Powered Dictionary & Pronunciation Guide**
 
 Sentelly is a modern, intelligent dictionary application that provides instant word definitions, pronunciation guides, and smart spelling correction using cutting-edge AI technology. Built with Next.js and powered by Google's Gemini AI, it offers a seamless vocabulary learning experience.
 
  
-## ✨ Features
+## Features
 
 - **🤖 AI-Powered Definitions**: Get comprehensive word definitions using Google's Gemini AI
 - **🔊 Audio Pronunciation**: High-quality text-to-speech using ElevenLabs
@@ -16,7 +16,7 @@ Sentelly is a modern, intelligent dictionary application that provides instant w
 - **📱 Responsive Design**: Beautiful UI that works on all devices
 - **⚡ Real-time Performance**: Fast API responses with performance tracking
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Prerequisites
 
@@ -103,7 +103,7 @@ Sentelly is a modern, intelligent dictionary application that provides instant w
 - **User Dashboard**: Personal analytics and usage statistics
 - **Authentication**: Secure login/signup with session management
 
-## 🛠️ Technology Stack
+## Technology Stack
 
 ### Frontend
 - **Next.js 15** - React framework with App Router
@@ -123,7 +123,7 @@ Sentelly is a modern, intelligent dictionary application that provides instant w
 - **React Hook Form** - Form management
 - **Zod** - Schema validation
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 sentelly/
@@ -146,7 +146,7 @@ sentelly/
 └── public/               # Static assets
 ```
 
-## 🔧 Configuration
+## Configuration
 
 ### Appwrite Setup
 
@@ -163,7 +163,7 @@ sentelly/
 - **ElevenLabs**: Sign up at [ElevenLabs](https://elevenlabs.io/) for TTS API access
 - **Appwrite**: Create project at [Appwrite Cloud](https://cloud.appwrite.io/)
 
-## 🚀 Deployment
+## Deployment
 
 ### Netlify (Recommended)
 
@@ -181,7 +181,7 @@ npm run build
 npm start
 ```
 
-## 📊 Features Deep Dive
+## Features Deep Dive
 
 ### Smart Caching System
 - Database-first approach for faster responses
@@ -199,7 +199,7 @@ npm start
 - Automatic caching of audio files
 - High-quality voice synthesis
 
-## 🙏 Acknowledgments
+## Acknowledgments
 
 - [Google AI](https://ai.google.dev/) for Gemini API
 - [ElevenLabs](https://elevenlabs.io/) for text-to-speech
