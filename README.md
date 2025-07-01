@@ -69,7 +69,7 @@ Sentelly is a modern, intelligent dictionary application that provides instant w
    
    Navigate to [http://localhost:3000](http://localhost:3000)
 
-## 🏗️ How It Works
+## How It Works
 
 ### Architecture Overview
 
