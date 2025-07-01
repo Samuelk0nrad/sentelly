@@ -7,14 +7,14 @@ Sentelly is a modern, intelligent dictionary application that provides instant w
  
 ## Features
 
-- **🤖 AI-Powered Definitions**: Get comprehensive word definitions using Google's Gemini AI
-- **🔊 Audio Pronunciation**: High-quality text-to-speech using ElevenLabs
-- **✏️ Smart Spelling Correction**: Intelligent suggestions for misspelled words
-- **💾 Smart Caching**: Database caching for faster repeated lookups
-- **📊 User Analytics**: Personal dashboard with usage statistics
-- **🔐 User Authentication**: Secure account management with Appwrite
-- **📱 Responsive Design**: Beautiful UI that works on all devices
-- **⚡ Real-time Performance**: Fast API responses with performance tracking
+- **AI-Powered Definitions**: Get comprehensive word definitions using Google's Gemini AI
+- **Audio Pronunciation**: High-quality text-to-speech using ElevenLabs
+- **Smart Spelling Correction**: Intelligent suggestions for misspelled words
+- **Smart Caching**: Database caching for faster repeated lookups
+- **User Analytics**: Personal dashboard with usage statistics
+- **User Authentication**: Secure account management with Appwrite
+- **Responsive Design**: Beautiful UI that works on all devices
+- **Real-time Performance**: Fast API responses with performance tracking
 
 ## Quick Start
 
