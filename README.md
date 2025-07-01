@@ -4,8 +4,7 @@
 
 Sentelly is a modern, intelligent dictionary application that provides instant word definitions, pronunciation guides, and smart spelling correction using cutting-edge AI technology. Built with Next.js and powered by Google's Gemini AI, it offers a seamless vocabulary learning experience.
 
-![Sentelly Demo](https://via.placeholder.com/800x400/f7a372/ffffff?text=Sentelly+Demo)
-
+ 
 ## ✨ Features
 
 - **🤖 AI-Powered Definitions**: Get comprehensive word definitions using Google's Gemini AI
@@ -200,32 +199,9 @@ npm start
 - Automatic caching of audio files
 - High-quality voice synthesis
 
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-## 📝 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
 ## 🙏 Acknowledgments
 
 - [Google AI](https://ai.google.dev/) for Gemini API
 - [ElevenLabs](https://elevenlabs.io/) for text-to-speech
 - [Appwrite](https://appwrite.io/) for backend services
 - [Shadcn/UI](https://ui.shadcn.com/) for component library
-
-## 📞 Support
-
-If you have any questions or need help, please:
-- Open an issue on GitHub
-- Check the [documentation](https://github.com/yourusername/sentelly/wiki)
-- Join our [Discord community](https://discord.gg/sentelly)
-
----
-
-**Made with ❤️ by the Sentelly Team**
